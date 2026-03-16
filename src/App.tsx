@@ -8,10 +8,11 @@ const PlanoVM = lazy(() => import("@/components/PlanoVM").then(m => ({ default: 
 const DeliveryTableDialog = lazy(() => import("@/components/Location").then(m => ({ default: m.DeliveryTableDialog })))
 const Album = lazy(() => import("@/components/Album").then(m => ({ default: m.Album })))
 const Rooster = lazy(() => import("@/components/Rooster").then(m => ({ default: m.Rooster })))
+const TemperatureReport = lazy(() => import("@/components/TemperatureReport").then(m => ({ default: m.TemperatureReport })))
 import { EditModeProvider } from "@/contexts/EditModeContext"
 import { DeviceProvider } from "@/contexts/DeviceContext"
 import { Toaster } from "sonner"
-import { Home, Package, Settings2, Images, ChevronDown, Truck, List, Layers, MapPin, ClipboardList, Users } from "lucide-react"
+import { Home, Package, Settings2, Images, ChevronDown, Truck, List, Layers, MapPin, ClipboardList, Users, ChevronRight, Globe, Wrench, ExternalLink, ThermometerSun } from "lucide-react"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -169,6 +170,8 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
         </div>
       </div>
 
+      <hr className="border-border/40" />
+
       {/* ── Color Guide Table ─────────────────────────────────── */}
       <div>
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2.5 px-0.5">Colour Guide</p>
@@ -248,21 +251,118 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
           </div>
         )}
       </div>
+
+      <hr className="border-border/40" />
+
+      {/* ── Tool & Equipment ──────────────────────────────────── */}
+      <div>
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2.5 px-0.5">Tool &amp; Equipment</p>
+        <div className="rounded-2xl overflow-hidden border border-border/60 shadow-sm bg-card divide-y divide-border/40">
+          {[
+            {
+              label: "Temperature Report",
+              page: "temperature-report",
+              icon: ThermometerSun,
+              accentClass: "bg-red-500/10 ring-red-500/20",
+              iconClass: "text-red-500",
+            },
+            {
+              label: "Checklist Jotform",
+              href: "https://form.jotform.com/213008086383453",
+              icon: ClipboardList,
+              accentClass: "bg-blue-500/10 ring-blue-500/20",
+              iconClass: "text-blue-500",
+            },
+            {
+              label: "Webportal",
+              href: "https://fmvending.web.app/",
+              icon: Globe,
+              accentClass: "bg-violet-500/10 ring-violet-500/20",
+              iconClass: "text-violet-500",
+            },
+            {
+              label: "Checklist Lorry",
+              href: "https://forms.office.com/pages/responsepage.aspx?id=WpvaAItOlUG0kNCIr1ybGYfFldfcInxMv9330lw425VUN1hGWVhOVFY0SlkwSk1PRENWVzJQNkREUy4u&origin=QRCode&route=shorturl",
+              icon: Truck,
+              accentClass: "bg-orange-500/10 ring-orange-500/20",
+              iconClass: "text-orange-500",
+            },
+          ].map(({ label, href, page, icon: Icon, accentClass, iconClass }) => {
+            const content = (
+              <>
+                <div className={`shrink-0 w-9 h-9 rounded-lg ring-1 ${accentClass} flex items-center justify-center`}>
+                  <Icon className={`size-5 ${iconClass}`} />
+                </div>
+                <span className="flex-1 text-sm font-semibold text-foreground">{label}</span>
+                <div className="flex items-center gap-1.5 shrink-0 text-muted-foreground/60 group-hover:text-muted-foreground transition-colors">
+                  {href ? <ExternalLink className="size-3.5" /> : <Wrench className="size-3.5" />}
+                  <ChevronRight className="size-4" />
+                </div>
+              </>
+            )
+
+            if (href) {
+              return (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/30 active:scale-[0.98] transition-all group text-left"
+                >
+                  {content}
+                </a>
+              )
+            }
+
+            return (
+              <button
+                key={label}
+                onClick={() => page && onNavigate(page)}
+                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/30 active:scale-[0.98] transition-all group text-left"
+              >
+                {content}
+              </button>
+            )
+          })}
+        </div>
+      </div>
     </div>
   )
 }
 
 function AppContent() {
   const [currentPage, setCurrentPage] = useState("home")
+  const [temperatureShareToken, setTemperatureShareToken] = useState<string | null>(null)
   const [isTransitioning, setIsTransitioning] = useState(false)
-  const [roosterViewMode, setRoosterViewMode] = useState<"month" | "week">("month")
+  const [roosterViewMode, setRoosterViewMode] = useState<"month" | "week">("week")
   const { open, openMobile, isMobile, toggleSidebar, setOpen, setOpenMobile } = useSidebar()
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const token = params.get("tempReport")
+    if (token) {
+      setTemperatureShareToken(token)
+      setCurrentPage("temperature-report")
+    }
+  }, [])
+
+  const clearTemperatureShareQuery = () => {
+    const url = new URL(window.location.href)
+    if (!url.searchParams.has("tempReport")) return
+    url.searchParams.delete("tempReport")
+    window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`)
+  }
 
   const handlePageChange = (page: string) => {
     if (page === currentPage) return
     // Auto-close sidebar on navigation
     if (isMobile) setOpenMobile(false)
     else setOpen(false)
+    if (page !== "temperature-report") {
+      setTemperatureShareToken(null)
+      clearTemperatureShareQuery()
+    }
     setIsTransitioning(true)
     setTimeout(() => {
       setCurrentPage(page)
@@ -290,6 +390,16 @@ function AppContent() {
         )
       case "rooster":
         return <Rooster viewMode={roosterViewMode} />
+      case "temperature-report":
+        return (
+          <TemperatureReport
+            sharedToken={temperatureShareToken}
+            onExitSharedView={() => {
+              setTemperatureShareToken(null)
+              clearTemperatureShareQuery()
+            }}
+          />
+        )
       case "settings":
       case "settings-profile":
         return <Settings section="profile" />
@@ -319,6 +429,8 @@ function AppContent() {
         return { parent: { label: "Vending Machine", icon: Package }, current: "Location" }
       case "rooster":
         return { parent: { label: "Schedule", icon: Users }, current: "Rooster" }
+      case "temperature-report":
+        return { parent: { label: "Tool & Equipment", icon: Wrench }, current: "Temperature Report" }
       case "settings":
       case "settings-profile":
         return { parent: { label: "Settings", icon: Settings2 }, current: "Profile" }

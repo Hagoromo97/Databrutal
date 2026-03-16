@@ -471,6 +471,9 @@ export function RouteList() {
   // tracks locally-edited cells that haven't been pushed to DB yet
   const [pendingCellEdits, setPendingCellEdits] = useState<Set<string>>(new Set())
 
+  const normalizePointCode = (value: string) => value.replace(/\D/g, "").slice(0, 4)
+  const isPointCodeValid = (code: string) => /^\d{1,4}$/.test(code)
+
   // ── Settings Modal ────────────────────────────────────────────────
   type ColumnKey = 'no' | 'code' | 'name' | 'delivery' | 'km' | 'lat' | 'lng' | 'action'
 
@@ -671,16 +674,28 @@ export function RouteList() {
     if (!isEditMode) return
     const key = `${rowCode}-${field}`
     setEditingCell({ rowCode, field })
-    setEditValue(String(currentValue))
+    if (field === 'code') {
+      setEditValue(normalizePointCode(String(currentValue)))
+    } else {
+      setEditValue(String(currentValue))
+    }
+    setEditError("")
     setPopoverOpen({ [key]: true })
   }
 
   const saveEdit = () => {
     if (!editingCell) return
 
+    const nextValue = editingCell.field === 'code' ? normalizePointCode(editValue) : editValue
+
+    if (editingCell.field === 'code' && !isPointCodeValid(nextValue)) {
+      setEditError("Code must be numeric and up to 4 digits")
+      return
+    }
+
     // Cross-route duplicate check when editing code
-    if (editingCell.field === 'code' && editValue !== editingCell.rowCode) {
-      const dupMsg = findDuplicateRoute(editValue)
+    if (editingCell.field === 'code' && nextValue !== editingCell.rowCode) {
+      const dupMsg = findDuplicateRoute(nextValue)
       if (dupMsg) {
         setEditError(dupMsg)
         return
@@ -697,7 +712,7 @@ export function RouteList() {
             return { ...point, [field]: numValue }
           }
         } else {
-          return { ...point, [field]: editValue }
+          return { ...point, [field]: nextValue }
         }
       }
       return point
@@ -740,6 +755,11 @@ export function RouteList() {
   }
 
   const handleAddNewPoint = () => {
+    if (!isPointCodeValid(newPoint.code)) {
+      setCodeError("Code must be numeric and up to 4 digits")
+      return
+    }
+
     const dupMsg = findDuplicateRoute(newPoint.code)
     if (dupMsg) {
       setCodeError(dupMsg)
@@ -761,19 +781,49 @@ export function RouteList() {
       setAddPointDialogOpen(false)
       toast.success("Location added", {
         description: `${label} · ${newPoint.delivery} · remember to save`,
-        icon: <MapPin className="size-4 text-primary" />,
+        icon: <MapPin className="size-3.5 text-primary" />,
         duration: 3000,
       })
     }
   }
 
   const handleCodeChange = (value: string) => {
-    setNewPoint({ ...newPoint, code: value })
-    if (value) {
-      const dupMsg = findDuplicateRoute(value)
-      setCodeError(dupMsg ?? "")
-    } else {
+    const masked = normalizePointCode(value)
+    setNewPoint({ ...newPoint, code: masked })
+
+    if (!masked) {
       setCodeError("")
+      return
+    }
+
+    if (!isPointCodeValid(masked)) {
+      setCodeError("Code must be numeric and up to 4 digits")
+      return
+    }
+
+    const dupMsg = findDuplicateRoute(masked)
+    setCodeError(dupMsg ?? "")
+  }
+
+  const handleEditCodeChange = (value: string) => {
+    const masked = normalizePointCode(value)
+    setEditValue(masked)
+
+    if (!masked) {
+      setEditError("")
+      return
+    }
+
+    if (!isPointCodeValid(masked)) {
+      setEditError("Code must be numeric and up to 4 digits")
+      return
+    }
+
+    if (masked !== editingCell?.rowCode) {
+      const msg = findDuplicateRoute(masked)
+      setEditError(msg ?? "")
+    } else {
+      setEditError("")
     }
   }
 
@@ -1288,7 +1338,7 @@ export function RouteList() {
                       })}
                       {route.deliveryPoints.length === 0 && (
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '1.5rem 0', color: 'hsl(var(--muted-foreground))' }}>
-                          <MapPin style={{ width: 15, height: 15, opacity: 0.4 }} />
+                          <MapPin style={{ width: 13, height: 13, opacity: 0.4 }} />
                           <span style={{ fontSize: '0.75rem', fontStyle: 'italic' }}>No delivery points yet</span>
                         </div>
                       )}
@@ -1610,14 +1660,12 @@ export function RouteList() {
                     }
                   >
                     {/* Header */}
-                    <div className="shrink-0 border-b border-border" style={{ background: `linear-gradient(135deg, ${markerColor}20 0%, ${markerColor}08 60%, transparent 100%)` }}>
-                      {/* Color accent strip */}
-                      <div style={{ height: 3, background: `linear-gradient(90deg, ${markerColor} 0%, ${markerColor}66 100%)` }} />
+                    <div className="shrink-0 border-b border-border bg-background">
                       <div className="px-5 py-3 flex items-center gap-3">
                         {(route.name + " " + route.code).toLowerCase().includes("kl")
-                          ? <img src="/kl-flag.png" className="object-cover shadow-sm ring-1 ring-black/10 dark:ring-white/10 shrink-0" style={{ width: 42, height: 26, borderRadius: 4 }} alt="KL" />
+                          ? <img src="/kl-flag.png" className="object-cover shadow-sm ring-1 ring-black/10 dark:ring-white/10 shrink-0" style={{ width: 36, height: 22, borderRadius: 4 }} alt="KL" />
                           : (route.name + " " + route.code).toLowerCase().includes("sel")
-                          ? <img src="/selangor-flag.png" className="object-cover shadow-sm ring-1 ring-black/10 dark:ring-white/10 shrink-0" style={{ width: 42, height: 26, borderRadius: 4 }} alt="Selangor" />
+                          ? <img src="/selangor-flag.png" className="object-cover shadow-sm ring-1 ring-black/10 dark:ring-white/10 shrink-0" style={{ width: 36, height: 22, borderRadius: 4 }} alt="Selangor" />
                           : (
                             <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${markerColor}25`, boxShadow: `0 0 0 1.5px ${markerColor}50` }}>
                               <Truck className="size-4" style={{ color: markerColor }} />
@@ -1745,17 +1793,11 @@ export function RouteList() {
                                               <Input
                                                 className={`text-center ${editError ? 'border-red-500 focus-visible:ring-red-500/30' : ''}`}
                                                 value={editValue}
-                                                onChange={(e) => {
-                                                  const v = e.target.value
-                                                  setEditValue(v)
-                                                  if (v && v !== editingCell?.rowCode) {
-                                                    const msg = findDuplicateRoute(v)
-                                                    setEditError(msg ?? "")
-                                                  } else {
-                                                    setEditError("")
-                                                  }
-                                                }}
-                                                placeholder="Enter code"
+                                                onChange={(e) => handleEditCodeChange(e.target.value)}
+                                                placeholder="0000"
+                                                inputMode="numeric"
+                                                pattern="[0-9]*"
+                                                maxLength={4}
                                                 autoFocus
                                                 onKeyDown={(e) => { if (e.key === 'Enter') saveEdit(); if (e.key === 'Escape') cancelEdit() }}
                                               />
@@ -2082,9 +2124,12 @@ export function RouteList() {
                             Code <span className="text-red-500">*</span>
                           </label>
                           <Input
-                            placeholder="Enter code"
+                            placeholder="0000"
                             value={newPoint.code}
                             onChange={(e) => handleCodeChange(e.target.value)}
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            maxLength={4}
                             className={codeError ? "border-red-500" : ""}
                           />
                           {codeError && (
@@ -2880,7 +2925,7 @@ export function RouteList() {
                 setSettingsOpen(false)
               }}
             >
-              <MapPin className="size-5 text-violet-600 dark:text-violet-400 shrink-0" />
+              <MapPin className="size-4 text-violet-600 dark:text-violet-400 shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold">Only This Route</p>
                 <p className="text-xs text-muted-foreground leading-snug mt-0.5">

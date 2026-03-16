@@ -61,7 +61,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, onSave }: 
   const [avatarUrlInput, setAvatarUrlInput] = useState("")
   const [avatarUploading, setAvatarUploading] = useState(false)
   const avatarFileRef = useRef<HTMLInputElement>(null)
-  const avatarGalleryRef = useRef<HTMLDivElement>(null)
+  const avatarGalleryHostRef = useRef<HTMLDivElement | null>(null)
   const avatarLGInstance = useRef<any>(null)
 
   useEffect(() => {
@@ -87,19 +87,27 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, onSave }: 
     }
     const init = async () => {
       await new Promise(r => setTimeout(r, 150))
-      if (!avatarGalleryRef.current) return
+      if (!avatarGalleryHostRef.current) {
+        avatarGalleryHostRef.current = document.createElement("div")
+      }
       const { default: lightGallery } = await import('lightgallery')
       const { default: lgZoom } = await import('lightgallery/plugins/zoom')
+      const { default: lgThumbnail } = await import('lightgallery/plugins/thumbnail')
       if (avatarLGInstance.current) {
         avatarLGInstance.current.destroy()
         avatarLGInstance.current = null
       }
-      const { default: lgThumbnail } = await import('lightgallery/plugins/thumbnail')
-      avatarLGInstance.current = lightGallery(avatarGalleryRef.current, {
+      avatarLGInstance.current = lightGallery(avatarGalleryHostRef.current, {
         plugins: [lgZoom, lgThumbnail],
         speed: 300,
         download: false,
         thumbnail: true,
+        dynamic: true,
+        dynamicEl: avatarImages.map((url) => ({
+          src: url,
+          thumb: url,
+          subHtml: `<h4>${point.name}</h4>`,
+        })),
       })
     }
     init()
@@ -109,7 +117,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, onSave }: 
         avatarLGInstance.current = null
       }
     }
-  }, [open, avatarImages, isEditMode])
+  }, [open, avatarImages, isEditMode, point.name])
 
   const openAvatarGallery = () => {
     if (!avatarLGInstance.current || avatarImages.length === 0) return
@@ -248,19 +256,16 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, onSave }: 
             ) : (
               avatarImages.length > 0 ? (
                 <>
-                  {/* Hidden lightgallery container with all images */}
-                  <div ref={avatarGalleryRef} className="hidden">
-                    {avatarImages.map((url, i) => (
-                      <a key={i} href={url} data-sub-html={`<h4>${point.name}</h4>`}>
-                        <img src={url} alt={point.name} />
-                      </a>
-                    ))}
-                  </div>
                   <button
                     onClick={openAvatarGallery}
-                    className="w-11 h-11 rounded-full overflow-hidden shrink-0 shadow cursor-zoom-in focus:outline-none"
+                    className="w-11 h-11 rounded-full overflow-hidden shrink-0 shadow cursor-zoom-in focus:outline-none relative"
                   >
                     <img src={avatarImageUrl || avatarImages[0]} alt={point.name} className="w-full h-full object-cover" />
+                    {avatarImages.length > 1 && (
+                      <span className="absolute -bottom-0.5 -right-0.5 bg-black/75 text-white text-[9px] leading-none px-1 py-0.5 rounded-full">
+                        {avatarImages.length}
+                      </span>
+                    )}
                   </button>
                 </>
               ) : (
@@ -509,7 +514,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, onSave }: 
             <DialogContent className="max-w-sm rounded-2xl">
               <DialogHeader>
                 <DialogTitle className="text-base">Avatar Images</DialogTitle>
-                <DialogDescription>Manage avatar images. Click an image to set it as display.</DialogDescription>
+                <DialogDescription>Manage avatar images. Click an image to set it as display thumbnail.</DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 {/* Image grid */}
