@@ -12,7 +12,7 @@ const TemperatureReport = lazy(() => import("@/components/TemperatureReport").th
 import { EditModeProvider } from "@/contexts/EditModeContext"
 import { DeviceProvider } from "@/contexts/DeviceContext"
 import { Toaster } from "sonner"
-import { Home, Package, Settings2, Images, ChevronDown, Truck, List, Layers, MapPin, ClipboardList, Users, ChevronRight, Globe, Wrench, ExternalLink, ThermometerSun } from "lucide-react"
+import { Home, Package, Settings2, Images, ChevronDown, Truck, List, Layers, MapPin, ClipboardList, Users, ChevronRight, Globe, Wrench, ExternalLink, ThermometerSun, Apple, Play } from "lucide-react"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -270,6 +270,8 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
               label: "Checklist Jotform",
               href: "https://form.jotform.com/213008086383453",
               icon: ClipboardList,
+              imageSrc: "/jotform1.png",
+              imageClass: "w-9 h-9 object-contain scale-[2]",
               accentClass: "bg-blue-500/10 ring-blue-500/20",
               iconClass: "text-blue-500",
             },
@@ -277,6 +279,8 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
               label: "Webportal",
               href: "https://fmvending.web.app/",
               icon: Globe,
+              imageSrc: "/FamilyMart.png",
+              imageClass: "w-9 h-9 rounded-xl object-cover",
               accentClass: "bg-violet-500/10 ring-violet-500/20",
               iconClass: "text-violet-500",
             },
@@ -287,11 +291,33 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
               accentClass: "bg-orange-500/10 ring-orange-500/20",
               iconClass: "text-orange-500",
             },
-          ].map(({ label, href, page, icon: Icon, accentClass, iconClass }) => {
+            {
+              label: "Rymnet for Appstore",
+              href: "https://apps.apple.com/us/app/rymnet-hrms/id6475796139",
+              icon: Apple,
+              imageSrc: "/rymnet1.png",
+              imageClass: "w-9 h-9 object-contain scale-[2.5]",
+              accentClass: "bg-gray-500/10 ring-gray-500/20",
+              iconClass: "text-gray-500",
+            },
+            {
+              label: "Rymnet for Playstore",
+              href: "https://play.google.com/store/apps/details?id=com.rnrymnet.prod",
+              icon: Play,
+              imageSrc: "/rymnet1.png",
+              imageClass: "w-9 h-9 object-contain scale-[2.5]",
+              accentClass: "bg-green-500/10 ring-green-500/20",
+              iconClass: "text-green-500",
+            },
+          ].map(({ label, href, page, icon: Icon, imageSrc, imageClass, accentClass, iconClass }) => {
             const content = (
               <>
-                <div className={`shrink-0 w-9 h-9 rounded-lg ring-1 ${accentClass} flex items-center justify-center`}>
-                  <Icon className={`size-5 ${iconClass}`} />
+                <div className={imageSrc ? "shrink-0 w-9 h-9 flex items-center justify-center" : `shrink-0 w-9 h-9 rounded-lg ring-1 ${accentClass} flex items-center justify-center`}>
+                  {imageSrc ? (
+                    <img src={imageSrc} alt={`${label} icon`} className={imageClass ?? "w-9 h-9 object-contain"} />
+                  ) : (
+                    <Icon className={`size-5 ${iconClass}`} />
+                  )}
                 </div>
                 <span className="flex-1 text-sm font-semibold text-foreground">{label}</span>
                 <div className="flex items-center gap-1.5 shrink-0 text-muted-foreground/60 group-hover:text-muted-foreground transition-colors">

@@ -228,10 +228,10 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, onSave }: 
   return (
     <>
       <Dialog open={open} onOpenChange={(o) => { if (!o) { setPendingUrl(null); setPendingUrlLabel("") } onOpenChange(o) }}>
-      <DialogContent className="w-[92vw] max-w-sm rounded-2xl p-0 overflow-hidden flex flex-col gap-0">
+      <DialogContent className="flex max-h-[min(88vh,56rem)] w-[92vw] max-w-sm flex-col gap-0 overflow-hidden rounded-2xl p-0 md:w-[min(92vw,44rem)] md:max-w-2xl md:rounded-3xl">
         {/* Header */}
-        <DialogHeader className="px-5 pt-5 pb-4 border-b border-border shrink-0 text-left">
-          <div className="flex items-center gap-3">
+        <DialogHeader className="shrink-0 border-b border-border px-5 pt-5 pb-4 text-left md:px-6 md:pt-6 md:pb-5">
+          <div className="flex items-center gap-3 md:gap-4">
             {/* Avatar: multi-image gallery / camera-slash placeholder */}
             {isEditMode ? (
               <button
@@ -242,7 +242,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, onSave }: 
                   setAvatarTab("url")
                   setShowAvatarDialog(true)
                 }}
-                className="w-11 h-11 rounded-full overflow-hidden shrink-0 shadow relative group focus:outline-none"
+                className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full shadow group focus:outline-none md:h-16 md:w-16"
               >
                 {avatarImageUrl ? (
                   <img src={avatarImageUrl} alt={point.name} className="w-full h-full object-cover" />
@@ -250,7 +250,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, onSave }: 
                   <img src={noImageSrc} alt="No image" className="w-full h-full object-cover" />
                 )}
                 <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                  <Camera className="size-4 text-white" />
+                  <Camera className="size-4 text-white md:size-5" />
                 </div>
               </button>
             ) : (
@@ -258,37 +258,37 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, onSave }: 
                 <>
                   <button
                     onClick={openAvatarGallery}
-                    className="w-11 h-11 rounded-full overflow-hidden shrink-0 shadow cursor-zoom-in focus:outline-none relative"
+                    className="relative h-11 w-11 shrink-0 cursor-zoom-in overflow-hidden rounded-full shadow focus:outline-none md:h-16 md:w-16"
                   >
                     <img src={avatarImageUrl || avatarImages[0]} alt={point.name} className="w-full h-full object-cover" />
                     {avatarImages.length > 1 && (
-                      <span className="absolute -bottom-0.5 -right-0.5 bg-black/75 text-white text-[9px] leading-none px-1 py-0.5 rounded-full">
+                      <span className="absolute -right-0.5 -bottom-0.5 rounded-full bg-black/75 px-1 py-0.5 text-[9px] leading-none text-white md:px-1.5 md:py-1 md:text-[10px]">
                         {avatarImages.length}
                       </span>
                     )}
                   </button>
                 </>
               ) : (
-                <div className="w-11 h-11 rounded-full overflow-hidden shrink-0 shadow">
+                <div className="h-11 w-11 shrink-0 overflow-hidden rounded-full shadow md:h-16 md:w-16">
                   <img src={noImageSrc} alt="No image" className="w-full h-full object-cover" />
                 </div>
               )
             )}
             <div className="flex-1 min-w-0">
-              <DialogTitle className="text-base font-bold text-foreground truncate">
+              <DialogTitle className="truncate text-base font-bold text-foreground md:text-xl md:leading-tight">
                 {point.name}
               </DialogTitle>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="text-xs font-mono text-muted-foreground">{point.code}</span>
-                <span className="text-xs text-muted-foreground/60">•</span>
-                <span className="text-xs text-muted-foreground">{point.delivery}</span>
+              <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 md:mt-1 md:gap-x-2">
+                <span className="text-xs font-mono text-muted-foreground md:text-sm">{point.code}</span>
+                <span className="text-xs text-muted-foreground/60 md:text-sm">•</span>
+                <span className="text-xs text-muted-foreground md:text-sm">{point.delivery}</span>
               </div>
             </div>
           </div>
         </DialogHeader>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 px-5 py-4 space-y-4">
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overflow-x-hidden px-5 py-4 md:px-6 md:py-5">
           {/* Information section */}
           <div>
             <div className="flex items-center justify-between mb-2.5">
@@ -511,14 +511,14 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, onSave }: 
 
           {/* Avatar Gallery Dialog */}
           <Dialog open={showAvatarDialog} onOpenChange={(o) => { if (!o) { setAvatarTab("url"); setAvatarUrlInput("") } setShowAvatarDialog(o) }}>
-            <DialogContent className="max-w-sm rounded-2xl">
+            <DialogContent className="max-w-sm rounded-2xl md:max-w-lg md:rounded-3xl">
               <DialogHeader>
                 <DialogTitle className="text-base">Avatar Images</DialogTitle>
                 <DialogDescription>Manage avatar images. Click an image to set it as display thumbnail.</DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 {/* Image grid */}
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-4 gap-2 md:grid-cols-5">
                   {dialogImages.map((url, i) => (
                     <div key={i} className="relative group">
                       <button
