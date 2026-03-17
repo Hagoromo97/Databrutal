@@ -1117,17 +1117,23 @@ export function RouteList() {
   const cardPad    = `${(1.25 * scale).toFixed(2)}rem`
   const cardPadV   = `${(1.0  * scale).toFixed(2)}rem`
   const cardFontLg = `${(1.1  * scale).toFixed(2)}rem`
-  const cardFontSm = `${(0.75 * scale).toFixed(2)}rem`
-  const cardFontXs = `${(0.65 * scale).toFixed(2)}rem`
+  const cardFontSm = `${(0.81 * scale).toFixed(2)}rem`
+  const cardFontXs = `${(0.71 * scale).toFixed(2)}rem`
   const rowPadH    = `${(0.65 * scale).toFixed(2)}rem`
-  const rowPadV    = `${(0.42 * scale).toFixed(2)}rem`
-  const rowGap     = `${(0.42 * scale).toFixed(2)}rem`
+  const rowPadV    = `${(0.46 * scale).toFixed(2)}rem`
+  const rowGap     = `${(0.62 * scale).toFixed(2)}rem`
   const iconSz     = Math.round(20 * scale)
-  const iconFs     = `${(0.55 * scale).toFixed(2)}rem`
+  const iconFs     = `${(0.75 * scale).toFixed(2)}rem`
   const badgeFs    = `${(0.72 * scale).toFixed(2)}rem`
   const btnFs      = `${(0.82 * scale).toFixed(2)}rem`
   const btnPad     = `${(0.6  * scale).toFixed(2)}rem`
   const bodyGap    = `${(0.45 * scale).toFixed(2)}rem`
+  const editTitleFs = cardFontLg
+  const editMetaFs = cardFontXs
+  const editLabelFs = cardFontXs
+  const editInputFs = cardFontSm
+  const editActionFs = btnFs
+  const editChipFs = badgeFs
   const previewRows = cardH >= 520 ? 5 : cardH >= 460 ? 4 : 3
 
   return (
@@ -1260,7 +1266,7 @@ export function RouteList() {
           return (
           <div key={route.id} style={{ display: 'flex', justifyContent: 'center' }}>
             {/* ── Route Card ── */}
-            <div style={{ width: cardW, height: cardH, borderRadius: 22, overflow: 'hidden', position: 'relative', background: 'hsl(var(--card))', border: `1.5px solid ${markerColor}55`, boxShadow: `0 4px 24px ${markerColor}18, 0 0 0 1px ${markerColor}18` }}>
+            <div style={{ width: cardW, height: cardH, borderRadius: 22, overflow: 'hidden', position: 'relative', background: 'hsl(var(--card))', border: `1.5px solid ${markerColor}55`, boxShadow: `0 2px 10px ${markerColor}0e, 0 0 0 1px ${markerColor}10` }}>
               {/* Background image – subtle */}
               <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${isDark ? bgDark : bgLight})`, backgroundSize: 'cover', backgroundPosition: 'center', opacity: isDark ? 0.42 : 0.26, zIndex: 0, pointerEvents: 'none' }} />
               {/* Sliding wrapper */}
@@ -1270,7 +1276,7 @@ export function RouteList() {
                 <div style={{ width: cardW, flexShrink: 0, display: 'flex', flexDirection: 'column', height: cardH }}>
 
                   {/* ── Colored header band ── */}
-                  <div style={{ position: 'relative', background: 'transparent', overflow: 'hidden', flexShrink: 0, padding: `${cardPadV} ${cardPad} calc(${cardPadV} * 0.8)` }}>
+                  <div style={{ position: 'relative', background: 'transparent', overflow: 'hidden', flexShrink: 0, padding: `${cardPadV} ${cardPad} calc(${cardPadV} * 1.2)` }}>
                     {/* Header content */}
                     <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                       {/* Route name */}
@@ -1281,7 +1287,7 @@ export function RouteList() {
                         <span style={{ fontSize: cardFontSm, fontWeight: 800, color: route.shift === 'PM' ? '#c2410c' : route.shift === 'AM' ? '#1e3a8a' : 'hsl(var(--muted-foreground))' }}>{route.shift}</span>
                       </div>
                       {/* Pin (left) + stops (right) — bottom row */}
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: `${(0.9 * Math.min(1, cardW / 340)).toFixed(2)}rem` }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: `${(1.2 * Math.min(1, cardW / 340)).toFixed(2)}rem` }}>
                         <button
                           onClick={e => { e.stopPropagation(); togglePin(route) }}
                           title={pinnedIds.has(route.id) ? "Unpin from Home" : "Pin to Home"}
@@ -1326,7 +1332,7 @@ export function RouteList() {
                         const km = hasCoords ? haversineKm(DEFAULT_MAP_CENTER.lat, DEFAULT_MAP_CENTER.lng, pt.latitude, pt.longitude) : null
                         return (
                           <div key={pt.code} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: cardFontSm, background: 'hsl(var(--muted)/0.5)', borderRadius: 10, padding: `${rowPadV} ${rowPadH}`, border: '1px solid hsl(var(--border)/0.6)' }}>
-                            <span style={{ width: iconSz, height: iconSz, borderRadius: 6, background: `linear-gradient(135deg, ${markerColor}dd, ${markerColor}88)`, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: iconFs, fontWeight: 800, flexShrink: 0, boxShadow: `0 2px 6px ${markerColor}44` }}>{i + 1}</span>
+                            <span style={{ width: iconSz, height: iconSz, borderRadius: 6, background: `linear-gradient(135deg, ${markerColor}dd, ${markerColor}88)`, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: iconFs, fontWeight: 800, flexShrink: 0, boxShadow: `0 1px 3px ${markerColor}22` }}>{i + 1}</span>
                             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, color: 'hsl(var(--foreground))', fontWeight: 600, minWidth: 0 }}>{pt.name}</span>
                             {km !== null && (
                               <span style={{ fontSize: cardFontXs, fontWeight: 600, color: 'hsl(var(--muted-foreground))', flexShrink: 0 }}>
@@ -1359,9 +1365,10 @@ export function RouteList() {
                       </>
                     )}
 
-                    {/* Divider */}
+                    {/* Divider + delivery type badges */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', marginTop: '0.55rem' }}>
                     {route.deliveryPoints.length > 0 && (
-                      <div style={{ height: 1, background: 'hsl(var(--border)/0.5)', margin: '0.2rem 0' }} />
+                      <div style={{ height: 1, background: 'hsl(var(--border)/0.5)' }} />
                     )}
 
                     {/* Delivery type badges — centered + interactive */}
@@ -1376,11 +1383,18 @@ export function RouteList() {
                           {Object.entries(grouped).map(([type, pts]) => {
                             const popKey = `${route.id}-badge-${type}`
                             const isOpen = badgePopover === popKey
+                            const badgeTextColor = isDark ? '#d1d5db' : '#525866'
+                            const badgeCountColor = isDark ? '#f3f4f6' : '#374151'
+                            const badgeBackground = isDark
+                              ? 'linear-gradient(135deg, #434b59, #2f3744)'
+                              : 'linear-gradient(135deg, #eef1f4, #d3d9e1)'
+                            const badgeBorder = isDark ? '#626d7d' : '#b7c0cc'
+                            const badgeTextShadow = isDark ? '0 1px 0 #0008' : '0 1px 0 #fff8'
                             return (
                               <Popover key={type} open={isOpen} onOpenChange={open => setBadgePopover(open ? popKey : null)}>
                                 <PopoverTrigger asChild>
-                                  <span onClick={() => setBadgePopover(isOpen ? null : popKey)} style={{ display: 'inline-flex', alignItems: 'center', fontSize: badgeFs, fontWeight: 700, color: '#5a6070', background: 'linear-gradient(135deg, #e8eaed, #c8cdd6)', padding: '2px 9px', borderRadius: '6px', border: '1px solid #b0b8c4', flexShrink: 0, letterSpacing: '0.03em', textShadow: '0 1px 0 #fff8', cursor: 'pointer', opacity: isOpen ? 0.75 : 1, transition: 'opacity 0.15s' }}>
-                                    {type}&nbsp;<span style={{ opacity: 0.55, fontWeight: 500 }}>&bull;</span>&nbsp;<span style={{ opacity: 0.75, fontWeight: 600 }}>{pts.length}</span>
+                                  <span onClick={() => setBadgePopover(isOpen ? null : popKey)} style={{ display: 'inline-flex', alignItems: 'center', fontSize: `calc(${badgeFs} + 1px)`, fontWeight: 700, color: badgeTextColor, background: badgeBackground, padding: '2px 9px', borderRadius: '6px', border: `1px solid ${badgeBorder}`, flexShrink: 0, letterSpacing: '0.03em', textShadow: badgeTextShadow, cursor: 'pointer', opacity: isOpen ? 0.75 : 1, transition: 'opacity 0.15s' }}>
+                                    {type}&nbsp;<span style={{ opacity: isDark ? 0.45 : 0.55, fontWeight: 500 }}>&bull;</span>&nbsp;<span style={{ color: badgeCountColor, fontWeight: 700 }}>{pts.length}</span>
                                   </span>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-64 p-0 z-50 backdrop-blur-xl bg-background/90 dark:bg-card/90 border border-border/60 shadow-2xl rounded-2xl overflow-hidden" align="center" side="top">
@@ -1433,6 +1447,7 @@ export function RouteList() {
                         </div>
                       )
                     })()}
+                    </div>{/* end divider+badges wrapper */}
                   </div>{/* end Body */}
 
                   {/* Footer */}
@@ -1548,34 +1563,34 @@ export function RouteList() {
                       <Edit2 style={{ color: '#fff', width: 13, height: 13 }} />
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'hsl(var(--foreground))' }}>Edit Card</div>
-                      <div style={{ fontSize: '0.67rem', color: 'hsl(var(--muted-foreground))' }}>Route · Code · Labels</div>
+                      <div style={{ fontWeight: 700, fontSize: editTitleFs, color: 'hsl(var(--foreground))' }}>Edit Card</div>
+                      <div style={{ fontSize: editMetaFs, color: 'hsl(var(--muted-foreground))' }}>Route · Code · Labels</div>
                     </div>
                   </div>
                   <div style={{ flex: 1, overflowY: 'auto', padding: '1rem 1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     <div>
-                      <label style={{ fontSize: '0.67rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'hsl(var(--muted-foreground))', display: 'flex', alignItems: 'center', gap: 4, marginBottom: '0.4rem' }}>Route Name</label>
-                      <input value={ep.name} onChange={e => setEditPanelState(prev => ({ ...prev, [route.id]: { ...ep, name: e.target.value } }))} placeholder="Route name..." style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: 8, border: '1.5px solid hsl(var(--border))', fontSize: '0.84rem', fontWeight: 600, color: 'hsl(var(--foreground))', background: 'hsl(var(--background))', outline: 'none', boxSizing: 'border-box' }} onFocus={e => e.target.style.borderColor = markerColor} onBlur={e => e.target.style.borderColor = 'hsl(var(--border))'} />
+                      <label style={{ fontSize: editLabelFs, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'hsl(var(--muted-foreground))', display: 'flex', alignItems: 'center', gap: 4, marginBottom: '0.4rem' }}>Route Name</label>
+                      <input value={ep.name} onChange={e => setEditPanelState(prev => ({ ...prev, [route.id]: { ...ep, name: e.target.value } }))} placeholder="Route name..." style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: 8, border: '1.5px solid hsl(var(--border))', fontSize: editInputFs, fontWeight: 600, color: 'hsl(var(--foreground))', background: 'hsl(var(--background))', outline: 'none', boxSizing: 'border-box' }} onFocus={e => e.target.style.borderColor = markerColor} onBlur={e => e.target.style.borderColor = 'hsl(var(--border))'} />
                     </div>
                     <div>
-                      <label style={{ fontSize: '0.67rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'hsl(var(--muted-foreground))', display: 'flex', alignItems: 'center', gap: 4, marginBottom: '0.4rem' }}>Code</label>
-                      <input value={ep.code} onChange={e => setEditPanelState(prev => ({ ...prev, [route.id]: { ...ep, code: e.target.value } }))} placeholder="Route code..." style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: 8, border: '1.5px solid hsl(var(--border))', fontSize: '0.84rem', fontWeight: 600, color: 'hsl(var(--foreground))', background: 'hsl(var(--background))', outline: 'none', boxSizing: 'border-box', fontFamily: 'monospace' }} onFocus={e => e.target.style.borderColor = markerColor} onBlur={e => e.target.style.borderColor = 'hsl(var(--border))'} />
+                      <label style={{ fontSize: editLabelFs, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'hsl(var(--muted-foreground))', display: 'flex', alignItems: 'center', gap: 4, marginBottom: '0.4rem' }}>Code</label>
+                      <input value={ep.code} onChange={e => setEditPanelState(prev => ({ ...prev, [route.id]: { ...ep, code: e.target.value } }))} placeholder="Route code..." style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: 8, border: '1.5px solid hsl(var(--border))', fontSize: editInputFs, fontWeight: 600, color: 'hsl(var(--foreground))', background: 'hsl(var(--background))', outline: 'none', boxSizing: 'border-box', fontFamily: 'monospace' }} onFocus={e => e.target.style.borderColor = markerColor} onBlur={e => e.target.style.borderColor = 'hsl(var(--border))'} />
                     </div>
                     <div>
-                      <label style={{ fontSize: '0.67rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'hsl(var(--muted-foreground))', display: 'flex', alignItems: 'center', gap: 4, marginBottom: '0.4rem' }}>Shift</label>
+                      <label style={{ fontSize: editLabelFs, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'hsl(var(--muted-foreground))', display: 'flex', alignItems: 'center', gap: 4, marginBottom: '0.4rem' }}>Shift</label>
                       <div style={{ display: 'flex', gap: '0.5rem' }}>
                         {['AM', 'PM'].map(opt => (
-                          <button key={opt} onClick={() => setEditPanelState(prev => ({ ...prev, [route.id]: { ...ep, shift: opt } }))} style={{ flex: 1, padding: '0.55rem 0', borderRadius: 8, border: `2px solid ${ep.shift === opt ? ep.color : 'hsl(var(--border))'}`, background: ep.shift === opt ? ep.color : 'hsl(var(--muted))', color: ep.shift === opt ? '#fff' : 'hsl(var(--muted-foreground))', fontSize: '0.9rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s' }}>{opt}</button>
+                          <button key={opt} onClick={() => setEditPanelState(prev => ({ ...prev, [route.id]: { ...ep, shift: opt } }))} style={{ flex: 1, padding: '0.55rem 0', borderRadius: 8, border: `2px solid ${ep.shift === opt ? ep.color : 'hsl(var(--border))'}`, background: ep.shift === opt ? ep.color : 'hsl(var(--muted))', color: ep.shift === opt ? '#fff' : 'hsl(var(--muted-foreground))', fontSize: editInputFs, fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s' }}>{opt}</button>
                         ))}
                       </div>
                     </div>
                     {/* Labels manager */}
                     <div>
-                      <label style={{ fontSize: '0.67rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'hsl(var(--muted-foreground))', display: 'flex', alignItems: 'center', gap: 4, marginBottom: '0.4rem' }}>Labels</label>
+                      <label style={{ fontSize: editLabelFs, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'hsl(var(--muted-foreground))', display: 'flex', alignItems: 'center', gap: 4, marginBottom: '0.4rem' }}>Labels</label>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.32rem', marginBottom: '0.45rem', minHeight: 24 }}>
                         {ep.labels.map((lbl) => {
                           return (
-                            <span key={lbl} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: `${ep.color}18`, color: ep.color, fontSize: '0.72rem', fontWeight: 600, padding: '2px 10px 2px 11px', borderRadius: '999px', border: `1px solid ${ep.color}44` }}>
+                            <span key={lbl} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: `${ep.color}18`, color: ep.color, fontSize: editChipFs, fontWeight: 600, padding: '2px 10px 2px 11px', borderRadius: '999px', border: `1px solid ${ep.color}44` }}>
                               {lbl}
                               <button onClick={() => setEditPanelState(prev => ({ ...prev, [route.id]: { ...ep, labels: ep.labels.filter(l => l !== lbl) } }))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: ep.color, padding: '0 1px', display: 'flex', lineHeight: 1, opacity: 0.75, fontSize: '0.85rem' }}>×</button>
                             </span>
@@ -1597,7 +1612,7 @@ export function RouteList() {
                             }
                           }}
                           placeholder="New label, press Enter"
-                          style={{ flex: 1, padding: '0.38rem 0.65rem', borderRadius: 7, border: '1.5px solid hsl(var(--border))', fontSize: '0.78rem', color: 'hsl(var(--foreground))', background: 'hsl(var(--background))', outline: 'none', boxSizing: 'border-box' }}
+                          style={{ flex: 1, padding: '0.38rem 0.65rem', borderRadius: 7, border: '1.5px solid hsl(var(--border))', fontSize: editLabelFs, color: 'hsl(var(--foreground))', background: 'hsl(var(--background))', outline: 'none', boxSizing: 'border-box' }}
                           onFocus={e => e.target.style.borderColor = markerColor}
                           onBlur={e => e.target.style.borderColor = 'hsl(var(--border))'}
                         />
@@ -1609,17 +1624,17 @@ export function RouteList() {
                               setEditLabelInput(prev => ({ ...prev, [route.id]: '' }))
                             }
                           }}
-                          style={{ padding: '0.38rem 0.8rem', borderRadius: 7, background: markerColor, color: '#fff', border: 'none', fontSize: '0.82rem', fontWeight: 800, cursor: 'pointer' }}
+                          style={{ padding: '0.38rem 0.8rem', borderRadius: 7, background: markerColor, color: '#fff', border: 'none', fontSize: editActionFs, fontWeight: 800, cursor: 'pointer' }}
                         >+</button>
                       </div>
                     </div>
 
-                    <button onClick={() => { setCardPanels(prev => ({ ...prev, [route.id]: { info: false, edit: false } })); setRouteToDelete(route); setDeleteRouteConfirmOpen(true) }} style={{ borderRadius: 8, fontSize: '0.75rem', fontWeight: 600, padding: '0.5rem 0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5', cursor: 'pointer', width: '100%', justifyContent: 'center' }}>
+                    <button onClick={() => { setCardPanels(prev => ({ ...prev, [route.id]: { info: false, edit: false } })); setRouteToDelete(route); setDeleteRouteConfirmOpen(true) }} style={{ borderRadius: 8, fontSize: editLabelFs, fontWeight: 600, padding: '0.5rem 0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5', cursor: 'pointer', width: '100%', justifyContent: 'center' }}>
                       <Trash2 style={{ width: 13, height: 13 }} /> Delete Route
                     </button>
                   </div>
                   <div style={{ padding: '0.75rem 1.25rem 1.25rem', display: 'flex', gap: '0.5rem', flexShrink: 0, borderTop: '1px solid hsl(var(--border))' }}>
-                    <button onClick={() => { setCardPanels(prev => ({ ...prev, [route.id]: { info: false, edit: false } })); setEditPanelState(prev => { const n = { ...prev }; delete n[route.id]; return n }) }} style={{ flex: 1, borderRadius: 8, fontSize: '0.8rem', fontWeight: 600, padding: '0.45rem 0', justifyContent: 'center', display: 'flex', alignItems: 'center', gap: '0.35rem', background: 'hsl(var(--muted))', color: 'hsl(var(--muted-foreground))', border: '1px solid hsl(var(--border))', cursor: 'pointer' }}>
+                    <button onClick={() => { setCardPanels(prev => ({ ...prev, [route.id]: { info: false, edit: false } })); setEditPanelState(prev => { const n = { ...prev }; delete n[route.id]; return n }) }} style={{ flex: 1, borderRadius: 8, fontSize: editActionFs, fontWeight: 600, padding: '0.45rem 0', justifyContent: 'center', display: 'flex', alignItems: 'center', gap: '0.35rem', background: 'hsl(var(--muted))', color: 'hsl(var(--muted-foreground))', border: '1px solid hsl(var(--border))', cursor: 'pointer' }}>
                       <X style={{ width: 12, height: 12 }} /> Cancel
                     </button>
                     {(() => {
@@ -1635,7 +1650,7 @@ export function RouteList() {
                             setEditPanelState(prev => { const n = { ...prev }; delete n[route.id]; return n })
                             toast.success('Route updated', { description: `"${ep.name}" · remember to save.`, icon: <CheckCircle2 className="size-4 text-primary" />, duration: 3000 })
                           }}
-                          style={{ flex: 1, borderRadius: 8, fontSize: '0.8rem', fontWeight: 700, padding: '0.45rem 0', justifyContent: 'center', display: 'flex', alignItems: 'center', gap: '0.35rem', background: hasEditChanges ? markerColor : 'hsl(var(--muted))', color: hasEditChanges ? '#fff' : 'hsl(var(--muted-foreground))', border: 'none', cursor: hasEditChanges ? 'pointer' : 'not-allowed', opacity: hasEditChanges ? 1 : 0.5, transition: 'all 0.15s' }}
+                          style={{ flex: 1, borderRadius: 8, fontSize: editActionFs, fontWeight: 700, padding: '0.45rem 0', justifyContent: 'center', display: 'flex', alignItems: 'center', gap: '0.35rem', background: hasEditChanges ? markerColor : 'hsl(var(--muted))', color: hasEditChanges ? '#fff' : 'hsl(var(--muted-foreground))', border: 'none', cursor: hasEditChanges ? 'pointer' : 'not-allowed', opacity: hasEditChanges ? 1 : 0.5, transition: 'all 0.15s' }}
                         >
                           <Check style={{ width: 12, height: 12 }} /> Save
                         </button>

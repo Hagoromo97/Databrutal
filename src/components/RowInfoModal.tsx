@@ -223,10 +223,22 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, onSave }: 
     }
   }
 
+  const handleDialogInteractOutside = (event: Event) => {
+    const target = event.target as HTMLElement | null
+    if (!target) return
+    // lightGallery is rendered in a portal outside this dialog; keep modal open while interacting with gallery UI.
+    if (target.closest(".lg-outer") || target.closest(".lg-backdrop") || target.closest(".lg-container")) {
+      event.preventDefault()
+    }
+  }
+
   return (
     <>
       <Dialog open={open} onOpenChange={(o) => { if (!o) { setPendingUrl(null); setPendingUrlLabel("") } onOpenChange(o) }}>
-      <DialogContent className="flex max-h-[min(88vh,56rem)] w-[92vw] max-w-sm flex-col gap-0 overflow-hidden rounded-2xl p-0 md:w-[min(92vw,44rem)] md:max-w-2xl md:rounded-3xl">
+      <DialogContent
+        onInteractOutside={handleDialogInteractOutside}
+        className="flex max-h-[min(88vh,56rem)] w-[92vw] max-w-sm flex-col gap-0 overflow-hidden rounded-2xl p-0 md:w-[min(92vw,44rem)] md:max-w-2xl md:rounded-3xl"
+      >
         {/* Header */}
         <DialogHeader className="shrink-0 border-b border-border px-5 pt-5 pb-4 text-left md:px-6 md:pt-6 md:pb-5">
           <div className="flex items-center gap-3 md:gap-4">
