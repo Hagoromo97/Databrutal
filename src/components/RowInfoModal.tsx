@@ -87,9 +87,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, onSave }: 
     }
     const init = async () => {
       await new Promise(r => setTimeout(r, 150))
-      if (!avatarGalleryHostRef.current) {
-        avatarGalleryHostRef.current = document.createElement("div")
-      }
+      if (!avatarGalleryHostRef.current) return
       const { default: lightGallery } = await import('lightgallery')
       const { default: lgZoom } = await import('lightgallery/plugins/zoom')
       const { default: lgThumbnail } = await import('lightgallery/plugins/thumbnail')
@@ -885,6 +883,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, onSave }: 
         )}
       </DialogContent>
     </Dialog>
+    <div ref={avatarGalleryHostRef} className="hidden" />
     </>
   )
 }
