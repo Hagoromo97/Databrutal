@@ -1281,7 +1281,7 @@ export function RouteList() {
                         <span style={{ fontSize: cardFontSm, fontWeight: 800, color: route.shift === 'PM' ? '#c2410c' : route.shift === 'AM' ? '#1e3a8a' : 'hsl(var(--muted-foreground))' }}>{route.shift}</span>
                       </div>
                       {/* Pin (left) + stops (right) — bottom row */}
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: `${(0.6 * Math.min(1, cardW / 340)).toFixed(2)}rem` }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: `${(0.9 * Math.min(1, cardW / 340)).toFixed(2)}rem` }}>
                         <button
                           onClick={e => { e.stopPropagation(); togglePin(route) }}
                           title={pinnedIds.has(route.id) ? "Unpin from Home" : "Pin to Home"}
@@ -1297,7 +1297,7 @@ export function RouteList() {
                         >
                           <span style={{ fontSize: '0.9rem' }}>{pinnedIds.has(route.id) ? '📌' : '📍'}</span>
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.1rem' }}>
-                            <span style={{ fontSize: cardFontXs, fontWeight: 700, color: pinnedIds.has(route.id) ? markerColor : 'hsl(var(--muted-foreground))', letterSpacing: '0.03em', lineHeight: 1 }}>
+                            <span style={{ fontSize: `${(0.73 * Math.min(1, cardW / 340)).toFixed(2)}rem`, fontWeight: 700, color: pinnedIds.has(route.id) ? markerColor : 'hsl(var(--muted-foreground))', letterSpacing: '0.03em', lineHeight: 1 }}>
                               {pinnedIds.has(route.id) ? 'Pinned' : 'Pin'}
                             </span>
                             <span style={{ fontSize: `${(0.57 * Math.min(1, cardW / 340)).toFixed(2)}rem`, color: 'hsl(var(--muted-foreground))', opacity: 0.75, lineHeight: 1, whiteSpace: 'nowrap' }}>
@@ -1307,7 +1307,7 @@ export function RouteList() {
                         </button>
                         <div style={{ display: 'flex', alignItems: 'baseline', gap: 3 }}>
                           <span style={{ fontSize: `${(1.0 * Math.min(1, cardW / 340)).toFixed(2)}rem`, fontWeight: 900, color: isDark ? '#c0c7d0' : markerColor, lineHeight: 1 }}>{route.deliveryPoints.length}</span>
-                          <span style={{ fontSize: iconFs, fontWeight: 700, color: isDark ? '#c0c7d0' : markerColor, opacity: isDark ? 0.85 : 0.6, textTransform: 'uppercase', letterSpacing: '0.08em' }}>stops</span>
+                          <span style={{ fontSize: `${(0.63 * Math.min(1, cardW / 340)).toFixed(2)}rem`, fontWeight: 700, color: isDark ? '#c0c7d0' : markerColor, opacity: isDark ? 0.85 : 0.6, textTransform: 'uppercase', letterSpacing: '0.08em' }}>stops</span>
                         </div>
                       </div>
                     </div>

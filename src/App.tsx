@@ -211,26 +211,34 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
             <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground text-center">Expired</span>
           </div>
           {/* Rows */}
-          <div className="divide-y divide-border">
+          <div className="flex flex-col">
             {DAYS.map((day, i) => {
               const isToday = i === todayIndex
-              if (!isToday && !tableExpanded) return null
+              const visible = isToday || tableExpanded
               return (
                 <div
                   key={day.en}
-                  className="grid grid-cols-4 items-center px-4 py-3 gap-2"
+                  style={{
+                    display: 'grid',
+                    gridTemplateRows: visible ? '1fr' : '0fr',
+                    transition: 'grid-template-rows 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)',
+                  }}
                 >
-                  <div className="flex items-center gap-2 min-w-0">
-                    {isToday && (
-                      <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-primary" />
-                    )}
-                    <div className="min-w-0">
-                      <p className={`text-sm font-semibold truncate ${isToday ? "text-primary" : "text-foreground"}`}>{day.en}</p>
+                  <div className="overflow-hidden">
+                    <div className={`grid grid-cols-4 items-center px-4 py-3 gap-2${i < DAYS.length - 1 ? ' border-b border-border/60' : ''}`}>
+                      <div className="flex items-center gap-2 min-w-0">
+                        {isToday && (
+                          <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-primary" />
+                        )}
+                        <div className="min-w-0">
+                          <p className={`text-sm font-semibold truncate ${isToday ? "text-primary" : "text-foreground"}`}>{day.en}</p>
+                        </div>
+                      </div>
+                      <div className="flex justify-center"><ColorPill color={STOCK_IN_COLORS[i]} size="sm" /></div>
+                      <div className="flex justify-center"><ColorPill color={MOVE_FRONT_COLORS[i]} size="sm" /></div>
+                      <div className="flex justify-center"><ColorPill color={EXPIRED_COLORS[i]} size="sm" /></div>
                     </div>
                   </div>
-                  <div className="flex justify-center"><ColorPill color={STOCK_IN_COLORS[i]} size="sm" /></div>
-                  <div className="flex justify-center"><ColorPill color={MOVE_FRONT_COLORS[i]} size="sm" /></div>
-                  <div className="flex justify-center"><ColorPill color={EXPIRED_COLORS[i]} size="sm" /></div>
                 </div>
               )
             })}
@@ -259,24 +267,32 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
           </div>
           <ChevronDown className={`size-4 shrink-0 text-muted-foreground transition-transform duration-200 ${legendOpen ? "rotate-180" : ""}`} />
         </button>
-        {legendOpen && (
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-2 p-3 border-t border-border">
-            {[
-              { color: "#3B82F6", label: "Blue" },
-              { color: "#F97316", label: "Orange" },
-              { color: "#92400E", label: "Brown" },
-              { color: "#22C55E", label: "Green" },
-              { color: "#A855F7", label: "Purple" },
-              { color: "#EC4899", label: "Pink" },
-              { color: "#EAB308", label: "Yellow" },
-            ].map(({ color, label }) => (
-              <div key={label} className="flex items-center gap-2.5 rounded-lg border border-border bg-card p-2.5 hover:bg-muted/40 transition-colors">
-                <ColorPill color={color} size="sm" />
-                <span className="text-xs text-foreground font-medium leading-tight">{label}</span>
-              </div>
-            ))}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateRows: legendOpen ? '1fr' : '0fr',
+            transition: 'grid-template-rows 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)',
+          }}
+        >
+          <div className="overflow-hidden">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-2 p-3 border-t border-border">
+              {[
+                { color: "#3B82F6", label: "Blue" },
+                { color: "#F97316", label: "Orange" },
+                { color: "#92400E", label: "Brown" },
+                { color: "#22C55E", label: "Green" },
+                { color: "#A855F7", label: "Purple" },
+                { color: "#EC4899", label: "Pink" },
+                { color: "#EAB308", label: "Yellow" },
+              ].map(({ color, label }) => (
+                <div key={label} className="flex items-center gap-2.5 rounded-lg border border-border bg-card p-2.5 hover:bg-muted/40 transition-colors">
+                  <ColorPill color={color} size="sm" />
+                  <span className="text-xs text-foreground font-medium leading-tight">{label}</span>
+                </div>
+              ))}
+            </div>
           </div>
-        )}
+        </div>
       </div>
 
       <hr className="border-border/40" />
@@ -360,12 +376,12 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
                 </div>
                 <span className="flex-1 text-sm font-semibold text-foreground">Rymnet Apps</span>
                 <div className="flex items-center gap-1.5 shrink-0 text-muted-foreground/60 group-hover:text-muted-foreground transition-colors">
-                  <ChevronDown className="size-4" />
+                  <ChevronDown className="size-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </div>
               </button>
             </PopoverTrigger>
 
-            <PopoverContent align="end" className="w-64 p-2">
+            <PopoverContent side="top" align="end" sideOffset={8} className="w-64 p-2">
               <a
                 href="https://apps.apple.com/us/app/rymnet-hrms/id6475796139"
                 target="_blank"
