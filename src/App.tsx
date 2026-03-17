@@ -8,11 +8,10 @@ const PlanoVM = lazy(() => import("@/components/PlanoVM").then(m => ({ default: 
 const DeliveryTableDialog = lazy(() => import("@/components/Location").then(m => ({ default: m.DeliveryTableDialog })))
 const Album = lazy(() => import("@/components/Album").then(m => ({ default: m.Album })))
 const Rooster = lazy(() => import("@/components/Rooster").then(m => ({ default: m.Rooster })))
-const TemperatureReport = lazy(() => import("@/components/TemperatureReport").then(m => ({ default: m.TemperatureReport })))
 import { EditModeProvider } from "@/contexts/EditModeContext"
 import { DeviceProvider } from "@/contexts/DeviceContext"
 import { Toaster } from "sonner"
-import { Home, Package, Settings2, Images, ChevronDown, Truck, List, Layers, MapPin, ClipboardList, Users, ChevronRight, Globe, Wrench, ExternalLink, ThermometerSun, Apple, Play } from "lucide-react"
+import { Home, Package, Settings2, Images, ChevronDown, Truck, List, Layers, MapPin, ClipboardList, Users, ChevronRight, Globe, Wrench, ExternalLink, Pin } from "lucide-react"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -27,6 +26,7 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
 const DAYS = [
   { en: "Monday",    my: "Isnin"  },
@@ -117,6 +117,15 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
     }
   }, [])
 
+  const pinnedRoutesOrdered = [...pinnedRoutes].sort((a, b) => {
+    const rank = (shift: string) => (shift === "AM" ? 0 : shift === "PM" ? 1 : 2)
+    const byShift = rank(a.shift) - rank(b.shift)
+    if (byShift !== 0) return byShift
+    return a.name.localeCompare(b.name)
+  })
+  const pinnedAM = pinnedRoutesOrdered.filter(r => r.shift === "AM").length
+  const pinnedPM = pinnedRoutesOrdered.filter(r => r.shift === "PM").length
+
   return (
     <div
       className="flex flex-col gap-5 p-4 md:p-6 max-w-2xl mx-auto w-full"
@@ -125,11 +134,28 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
       {/* ── Pinned Routes ─────────────────────────────────────── */}
       {pinnedRoutes.length > 0 && (
         <div>
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2.5 px-0.5">
-            Pinned Routes
-          </p>
+          <div className="mb-2.5 flex items-center justify-between gap-2 px-0.5">
+            <div className="flex items-center gap-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Pinned Routes</p>
+              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                {pinnedRoutesOrdered.length}
+              </span>
+            </div>
+            <button
+              onClick={() => onNavigate("route-list")}
+              className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-[10px] font-semibold text-muted-foreground hover:bg-muted/40 hover:text-foreground transition-colors"
+            >
+              <List className="size-3" />Open List
+            </button>
+          </div>
+
+          <div className="mb-2.5 flex items-center gap-2 px-0.5">
+            <span className="rounded-md border border-border bg-card px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">AM {pinnedAM}</span>
+            <span className="rounded-md border border-border bg-card px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">PM {pinnedPM}</span>
+          </div>
+
           <div className="rounded-2xl overflow-hidden border border-border/60 shadow-sm bg-card divide-y divide-border/40">
-            {pinnedRoutes.map((r) => {
+            {pinnedRoutesOrdered.map((r) => {
               const isKL  = (r.name + " " + r.code).toLowerCase().includes("kl")
               const isSel = (r.name + " " + r.code).toLowerCase().includes("sel")
               return (
@@ -139,7 +165,7 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
                     : isSel
                     ? <img src="/selangor-flag.png" className="shrink-0 object-cover rounded shadow-sm ring-1 ring-black/10 dark:ring-white/10" style={{ width: 32, height: 20 }} alt="Selangor" />
                     : <div className="shrink-0 w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center ring-1 ring-primary/20">
-                        <Truck className="size-3.5 text-primary" />
+                      <Pin className="size-3.5 text-primary" />
                       </div>
                   }
                   <p className="flex-1 text-sm font-semibold text-foreground leading-tight line-clamp-1 min-w-0">{r.name}</p>
@@ -167,6 +193,7 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
           <QuickActionCard icon={ClipboardList} label="Route List" description="Manage vending routes" page="route-list" iconClass="text-violet-500"  onNavigate={onNavigate} />
           <QuickActionCard icon={MapPin}        label="Location"   description="Delivery records"       page="deliveries" iconClass="text-emerald-500" onNavigate={onNavigate} />
           <QuickActionCard icon={Users}         label="Rooster"    description="Team schedule"          page="rooster"    iconClass="text-orange-500"  onNavigate={onNavigate} />
+          <QuickActionCard icon={Package}       label="Plano VM"   description="Planogram tools"        page="plano-vm"   iconClass="text-sky-500"     onNavigate={onNavigate} />
         </div>
       </div>
 
@@ -260,61 +287,43 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
         <div className="rounded-2xl overflow-hidden border border-border/60 shadow-sm bg-card divide-y divide-border/40">
           {[
             {
-              label: "Temperature Report",
-              page: "temperature-report",
-              icon: ThermometerSun,
-              accentClass: "bg-red-500/10 ring-red-500/20",
-              iconClass: "text-red-500",
-            },
-            {
-              label: "Checklist Jotform",
-              href: "https://form.jotform.com/213008086383453",
-              icon: ClipboardList,
-              imageSrc: "/jotform1.png",
-              imageClass: "w-9 h-9 object-contain scale-[2]",
-              accentClass: "bg-blue-500/10 ring-blue-500/20",
-              iconClass: "text-blue-500",
-            },
-            {
-              label: "Webportal",
-              href: "https://fmvending.web.app/",
-              icon: Globe,
-              imageSrc: "/FamilyMart.png",
-              imageClass: "w-9 h-9 rounded-xl object-cover",
-              accentClass: "bg-violet-500/10 ring-violet-500/20",
-              iconClass: "text-violet-500",
-            },
-            {
               label: "Checklist Lorry",
               href: "https://forms.office.com/pages/responsepage.aspx?id=WpvaAItOlUG0kNCIr1ybGYfFldfcInxMv9330lw425VUN1hGWVhOVFY0SlkwSk1PRENWVzJQNkREUy4u&origin=QRCode&route=shorturl",
               icon: Truck,
+              bootstrapIconClass: "bi bi-check2-all",
+              plainIconContainer: true,
+              hideCaret: true,
               accentClass: "bg-orange-500/10 ring-orange-500/20",
               iconClass: "text-orange-500",
             },
             {
-              label: "Rymnet for Appstore",
-              href: "https://apps.apple.com/us/app/rymnet-hrms/id6475796139",
-              icon: Apple,
-              imageSrc: "/rymnet1.png",
-              imageClass: "w-9 h-9 object-contain scale-[2.5]",
-              accentClass: "bg-gray-500/10 ring-gray-500/20",
-              iconClass: "text-gray-500",
+              label: "Checklist Driver",
+              href: "https://form.jotform.com/213008086383453",
+              icon: ClipboardList,
+              imageSrc: "/jotform1.png",
+              imageClass: "w-9 h-9 object-contain scale-[2.25]",
+              hideCaret: true,
+              accentClass: "bg-blue-500/10 ring-blue-500/20",
+              iconClass: "text-blue-500",
             },
             {
-              label: "Rymnet for Playstore",
-              href: "https://play.google.com/store/apps/details?id=com.rnrymnet.prod",
-              icon: Play,
-              imageSrc: "/rymnet1.png",
-              imageClass: "w-9 h-9 object-contain scale-[2.5]",
-              accentClass: "bg-green-500/10 ring-green-500/20",
-              iconClass: "text-green-500",
+              label: "Web Portal",
+              href: "https://fmvending.web.app/",
+              icon: Globe,
+              imageSrc: "/FamilyMart.png",
+              imageClass: "w-9 h-9 rounded-xl object-cover",
+              hideCaret: true,
+              accentClass: "bg-violet-500/10 ring-violet-500/20",
+              iconClass: "text-violet-500",
             },
-          ].map(({ label, href, page, icon: Icon, imageSrc, imageClass, accentClass, iconClass }) => {
+          ].map(({ label, href, page, icon: Icon, imageSrc, imageClass, accentClass, iconClass, bootstrapIconClass, plainIconContainer, hideCaret }) => {
             const content = (
               <>
-                <div className={imageSrc ? "shrink-0 w-9 h-9 flex items-center justify-center" : `shrink-0 w-9 h-9 rounded-lg ring-1 ${accentClass} flex items-center justify-center`}>
+                <div className={imageSrc || plainIconContainer ? "shrink-0 w-9 h-9 flex items-center justify-center" : `shrink-0 w-9 h-9 rounded-lg ring-1 ${accentClass} flex items-center justify-center`}>
                   {imageSrc ? (
                     <img src={imageSrc} alt={`${label} icon`} className={imageClass ?? "w-9 h-9 object-contain"} />
+                  ) : bootstrapIconClass ? (
+                    <i className={`${bootstrapIconClass} text-lg leading-none ${iconClass}`} aria-hidden="true" />
                   ) : (
                     <Icon className={`size-5 ${iconClass}`} />
                   )}
@@ -322,7 +331,7 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
                 <span className="flex-1 text-sm font-semibold text-foreground">{label}</span>
                 <div className="flex items-center gap-1.5 shrink-0 text-muted-foreground/60 group-hover:text-muted-foreground transition-colors">
                   {href ? <ExternalLink className="size-3.5" /> : <Wrench className="size-3.5" />}
-                  <ChevronRight className="size-4" />
+                  {!hideCaret && <ChevronRight className="size-4" />}
                 </div>
               </>
             )
@@ -351,6 +360,44 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
               </button>
             )
           })}
+
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/30 active:scale-[0.98] transition-all group text-left">
+                <div className="shrink-0 w-9 h-9 flex items-center justify-center">
+                  <img src="/rymnet1.png" alt="Rymnet Apps icon" className="w-9 h-9 object-contain scale-[2.5]" />
+                </div>
+                <span className="flex-1 text-sm font-semibold text-foreground">Rymnet Apps</span>
+                <div className="flex items-center gap-1.5 shrink-0 text-muted-foreground/60 group-hover:text-muted-foreground transition-colors">
+                  <ChevronDown className="size-4" />
+                </div>
+              </button>
+            </PopoverTrigger>
+
+            <PopoverContent align="end" className="w-64 p-2">
+              <a
+                href="https://apps.apple.com/us/app/rymnet-hrms/id6475796139"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center gap-3 rounded-md px-3 py-2.5 hover:bg-muted/40 transition-colors"
+              >
+                <i className="bi bi-apple text-lg leading-none" aria-hidden="true" />
+                <span className="flex-1 text-sm font-medium">App Store</span>
+                <ExternalLink className="size-3.5 text-muted-foreground" />
+              </a>
+
+              <a
+                href="https://play.google.com/store/apps/details?id=com.rnrymnet.prod"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center gap-3 rounded-md px-3 py-2.5 hover:bg-muted/40 transition-colors"
+              >
+                <i className="bi bi-android2 text-lg leading-none text-green-500" aria-hidden="true" />
+                <span className="flex-1 text-sm font-medium">Play Store</span>
+                <ExternalLink className="size-3.5 text-muted-foreground" />
+              </a>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
     </div>
@@ -359,36 +406,15 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
 
 function AppContent() {
   const [currentPage, setCurrentPage] = useState("home")
-  const [temperatureShareToken, setTemperatureShareToken] = useState<string | null>(null)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [roosterViewMode, setRoosterViewMode] = useState<"month" | "week">("week")
   const { open, openMobile, isMobile, toggleSidebar, setOpen, setOpenMobile } = useSidebar()
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const token = params.get("tempReport")
-    if (token) {
-      setTemperatureShareToken(token)
-      setCurrentPage("temperature-report")
-    }
-  }, [])
-
-  const clearTemperatureShareQuery = () => {
-    const url = new URL(window.location.href)
-    if (!url.searchParams.has("tempReport")) return
-    url.searchParams.delete("tempReport")
-    window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`)
-  }
 
   const handlePageChange = (page: string) => {
     if (page === currentPage) return
     // Auto-close sidebar on navigation
     if (isMobile) setOpenMobile(false)
     else setOpen(false)
-    if (page !== "temperature-report") {
-      setTemperatureShareToken(null)
-      clearTemperatureShareQuery()
-    }
     setIsTransitioning(true)
     setTimeout(() => {
       setCurrentPage(page)
@@ -416,16 +442,6 @@ function AppContent() {
         )
       case "rooster":
         return <Rooster viewMode={roosterViewMode} />
-      case "temperature-report":
-        return (
-          <TemperatureReport
-            sharedToken={temperatureShareToken}
-            onExitSharedView={() => {
-              setTemperatureShareToken(null)
-              clearTemperatureShareQuery()
-            }}
-          />
-        )
       case "settings":
       case "settings-profile":
         return <Settings section="profile" />
@@ -455,8 +471,6 @@ function AppContent() {
         return { parent: { label: "Vending Machine", icon: Package }, current: "Location" }
       case "rooster":
         return { parent: { label: "Schedule", icon: Users }, current: "Rooster" }
-      case "temperature-report":
-        return { parent: { label: "Tool & Equipment", icon: Wrench }, current: "Temperature Report" }
       case "settings":
       case "settings-profile":
         return { parent: { label: "Settings", icon: Settings2 }, current: "Profile" }
