@@ -316,7 +316,7 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
               accentClass: "bg-violet-500/10 ring-violet-500/20",
               iconClass: "text-violet-500",
             },
-          ].map(({ label, href, page, icon: Icon, imageSrc, imageClass, accentClass, iconClass, bootstrapIconClass, plainIconContainer, hideCaret }) => {
+          ].map(({ label, href, icon: Icon, imageSrc, imageClass, accentClass, iconClass, bootstrapIconClass, plainIconContainer, hideCaret }) => {
             const content = (
               <>
                 <div className={imageSrc || plainIconContainer ? "shrink-0 w-9 h-9 flex items-center justify-center" : `shrink-0 w-9 h-9 rounded-lg ring-1 ${accentClass} flex items-center justify-center`}>
