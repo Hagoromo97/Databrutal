@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from "react"
-import bgDark from "../../icon/IMG_8601.jpeg"
-import bgLight from "../../icon/IMG_8602.jpeg"
+import bgDark from "../../icon/darkm.jpeg"
+import bgLight from "../../icon/lightm.jpeg"
 import { List, Info, Plus, Check, X, Edit2, Trash2, Search, Save, ArrowUp, ArrowDown, Truck, Loader2, SlidersHorizontal, CheckCircle2, MapPin, Route, AlertCircle, History, MapPinned, TableProperties, Shrink, Expand, ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import { toast } from "sonner"
@@ -1268,7 +1268,7 @@ export function RouteList() {
             {/* ── Route Card ── */}
             <div style={{ width: cardW, height: cardH, borderRadius: 22, overflow: 'hidden', position: 'relative', background: 'hsl(var(--card))', border: `1.5px solid ${markerColor}55`, boxShadow: `0 2px 10px ${markerColor}0e, 0 0 0 1px ${markerColor}10` }}>
               {/* Background image – subtle */}
-              <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${isDark ? bgDark : bgLight})`, backgroundSize: 'cover', backgroundPosition: 'center', opacity: isDark ? 0.42 : 0.26, zIndex: 0, pointerEvents: 'none' }} />
+              <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${isDark ? bgDark : bgLight})`, backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.14, zIndex: 0, pointerEvents: 'none' }} />
               {/* Sliding wrapper */}
               <div style={{ position: 'relative', zIndex: 1, display: 'flex', width: cardW * 3, height: '100%', transform: cardPanel.edit ? `translateX(-${cardW * 2}px)` : cardPanel.info ? `translateX(-${cardW}px)` : 'translateX(0)', transition: 'transform 0.38s cubic-bezier(0.4,0,0.2,1)' }}>
 
@@ -1284,7 +1284,7 @@ export function RouteList() {
                       {/* Code + shift — tight under name */}
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                         <span style={{ fontSize: cardFontSm, fontWeight: 700, color: 'hsl(var(--muted-foreground))' }}>{route.code}</span>
-                        <span style={{ fontSize: cardFontSm, fontWeight: 800, color: route.shift === 'PM' ? '#c2410c' : route.shift === 'AM' ? '#1e3a8a' : 'hsl(var(--muted-foreground))' }}>{route.shift}</span>
+                        <span style={{ fontSize: cardFontSm, fontWeight: 800, color: route.shift === 'AM' ? '#16a34a' : route.shift === 'PM' ? '#c2410c' : 'hsl(var(--muted-foreground))' }}>{route.shift}</span>
                       </div>
                       {/* Pin (left) + stops (right) — bottom row */}
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: `${(1.2 * Math.min(1, cardW / 340)).toFixed(2)}rem` }}>
