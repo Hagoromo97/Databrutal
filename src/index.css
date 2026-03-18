@@ -6,6 +6,16 @@ html {
   zoom: 1.2;
 }
 
+/* LightGallery opened from Radix Dialog: restore click targets on gallery layer */
+.lg-outer,
+.lg-outer *,
+.lg-backdrop,
+.lg-container,
+.lg-toolbar,
+.lg-components {
+  pointer-events: auto !important;
+}
+
 /* ── Loading text shine animation ────────────────────────────────────────── */
 @keyframes loading-shine {
   0%   { background-position: -200% center; }
