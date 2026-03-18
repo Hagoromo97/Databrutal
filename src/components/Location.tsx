@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react"
-import { RefreshCw, Loader2, AlertCircle, AlertTriangle, Search, X, ChevronUp, ChevronDown as ChevronDownIcon, ChevronsUpDown, Filter, Save, Check, Columns2 } from "lucide-react"
+import { RefreshCw, Loader2, AlertCircle, AlertTriangle, Search, X, ChevronUp, ChevronDown as ChevronDownIcon, ChevronsUpDown, Filter, Save, Check, Columns2, Settings2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -120,6 +120,7 @@ export function DeliveryTableDialog() {
   const [filterRoutes, setFilterRoutes]         = useState<Set<string>>(new Set())
   const [filterDeliveries, setFilterDeliveries] = useState<Set<string>>(new Set())
   const [filterOpen, setFilterOpen]             = useState(false)
+  const [settingsOpen, setSettingsOpen]         = useState(false)
   const [filterTab, setFilterTab]               = useState<"routes" | "delivery" | "columns">("routes")
   const [sortOpen, setSortOpen]                 = useState(false)
   const [visibleColumns, setVisibleColumns]     = useState<Set<ColumnKey>>(new Set(["no", "route", "code", "name", "delivery"]))
@@ -294,6 +295,10 @@ export function DeliveryTableDialog() {
             {isSaving ? "Saving…" : `Save (${pendingEdits.size})`}
           </Button>
         )}
+        <Button size="sm" variant="ghost" onClick={() => setSettingsOpen(true)} className="h-7 gap-1.5 text-xs text-muted-foreground hover:text-foreground">
+          <Settings2 className="w-3.5 h-3.5" />
+          Settings
+        </Button>
         {saveError && (
           <span className="flex items-center gap-1 text-xs font-medium text-destructive">
             <AlertCircle className="w-3.5 h-3.5" />{saveError}
@@ -603,6 +608,61 @@ export function DeliveryTableDialog() {
           </table>
         </div>
       )}
+
+      {/* ── Settings Modal ──────────────────────────────────────────── */}
+      <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+        <DialogContent className="w-[92vw] max-w-sm rounded-2xl p-0 gap-0 overflow-hidden">
+          <div className="px-5 pt-5 pb-3 border-b border-border shrink-0">
+            <DialogHeader className="text-center items-center">
+              <DialogTitle className="text-sm font-bold">Display Settings</DialogTitle>
+            </DialogHeader>
+          </div>
+
+          <div className="overflow-y-auto max-h-96 px-5 py-4 space-y-4">
+            {/* Show/Hide Columns */}
+            <div className="space-y-2.5">
+              <p className="text-xs font-semibold uppercase tracking-wider text-foreground">Visible Columns</p>
+              <div className="space-y-2">
+                {ALL_COLUMNS.map(col => {
+                  const visible = visibleColumns.has(col.key)
+                  return (
+                    <button
+                      key={col.key}
+                      onClick={() => toggleColumn(col.key)}
+                      className={cn(
+                        "w-full flex items-center gap-3 px-3 py-2 rounded-lg border text-xs text-left transition-colors",
+                        visible ? "border-primary bg-primary/10 text-primary" : "border-border hover:bg-muted/40 text-muted-foreground"
+                      )}
+                    >
+                      <span className={cn("flex shrink-0 items-center justify-center w-4 h-4 rounded border", visible ? "bg-primary border-primary" : "border-muted-foreground/40")}>
+                        {visible && <Check className="w-2.5 h-2.5 text-primary-foreground" />}
+                      </span>
+                      <span className="font-medium">{col.label}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Active Filters Info */}
+            {(filterRoutes.size > 0 || filterDeliveries.size > 0) && (
+              <div className="space-y-2.5 border-t border-border pt-4">
+                <p className="text-xs font-semibold uppercase tracking-wider text-foreground">Active Filters</p>
+                <button
+                  onClick={() => { setFilterRoutes(new Set()); setFilterDeliveries(new Set()) }}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-lg hover:bg-amber-500/20 transition-colors"
+                >
+                  Clear all filters
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="px-5 py-3 border-t border-border flex justify-end gap-2 shrink-0">
+            <Button size="sm" variant="outline" onClick={() => setSettingsOpen(false)}>Close</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
     </div>
   )

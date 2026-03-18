@@ -226,7 +226,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, onSave }: 
       <Dialog open={open} onOpenChange={(o) => { if (!o) { setPendingUrl(null); setPendingUrlLabel("") } onOpenChange(o) }}>
       <DialogContent
         onInteractOutside={handleDialogInteractOutside}
-        className="flex max-h-[min(88vh,56rem)] w-[92vw] max-w-sm flex-col gap-0 overflow-hidden rounded-2xl p-0 md:w-[min(92vw,44rem)] md:max-w-2xl md:rounded-3xl"
+        className="flex max-h-[min(88vh,56rem)] w-[90vw] max-w-[22rem] flex-col gap-0 overflow-hidden rounded-2xl p-0 md:w-[min(88vw,38rem)] md:max-w-xl md:rounded-3xl"
       >
         {/* Header */}
         <DialogHeader className="shrink-0 border-b border-border px-5 pt-5 pb-4 text-left md:px-6 md:pt-6 md:pb-5">
@@ -875,13 +875,16 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, onSave }: 
           {/* QR Scan result modal removed — integrated into main QR dialog */}
         </div>
 
-        {/* Footer — only in edit mode */}
-        {isEditing && (
-          <div className="px-5 pb-5 flex gap-2 justify-end border-t border-border pt-3 shrink-0 bg-background">
-            <Button variant="outline" size="sm" onClick={handleCancel}>Cancel</Button>
-            <Button size="sm" onClick={handleSave}><Check className="size-3.5 mr-1" />Save</Button>
-          </div>
-        )}
+        <DialogFooter className="shrink-0 border-t border-border bg-background px-5 py-4 sm:space-x-0">
+          {isEditing ? (
+            <>
+              <Button variant="outline" size="sm" onClick={handleCancel}>Cancel</Button>
+              <Button size="sm" onClick={handleSave}><Check className="size-3.5 mr-1" />Save</Button>
+            </>
+          ) : (
+            <Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>Close</Button>
+          )}
+        </DialogFooter>
       </DialogContent>
     </Dialog>
     <div ref={avatarGalleryHostRef} className="hidden" />

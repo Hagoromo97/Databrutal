@@ -33,15 +33,15 @@ const DEFAULT_ROUTE_COLORS = ["#374151", "#7c3aed", "#0891b2", "#16a34a", "#dc26
 // ─── Section panels ───────────────────────────────────────────────────────────
 function SectionHeader({ icon, title, description }: { icon: ReactNode; title: string; description?: string }) {
   return (
-    <div className="mb-7">
-      <div className="flex items-center gap-3 mb-1">
-        <div className="flex shrink-0 items-center justify-center text-primary">
+    <div className="mb-8 space-y-3">
+      <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center justify-center p-2 bg-primary/10 rounded-lg text-primary">
           {icon}
         </div>
-        <h2 className="text-base font-semibold tracking-tight text-foreground">{title}</h2>
+        <h2 className="text-lg font-semibold tracking-tight text-foreground">{title}</h2>
       </div>
       {description && (
-        <p className="ml-7 text-sm text-muted-foreground leading-relaxed">{description}</p>
+        <p className="text-sm text-muted-foreground leading-relaxed pl-11">{description}</p>
       )}
       <Separator className="mt-4" />
     </div>
@@ -153,17 +153,17 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
       // ── Profile ───────────────────────────────────────────────────────────
       case "profile":
         return (
-          <div>
-            <SectionHeader icon={<User className="size-4" />} title="Profile" description="Maklumat akaun anda." />
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-6">
+            <SectionHeader icon={<User className="size-5" />} title="Profile" description="Maklumat akaun anda." />
+            <div className="space-y-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {([
                   { key: 'name',  label: 'Full Name',     type: 'text',  icon: null },
                   { key: 'role',  label: 'Role',           type: 'text',  icon: null },
                   { key: 'email', label: 'Email Address',  type: 'email', icon: <Mail className="size-4" /> },
                   { key: 'phone', label: 'Phone Number',   type: 'text',  icon: <Phone className="size-4" /> },
                 ] as { key: keyof typeof profile; label: string; type: string; icon: ReactNode }[]).map(({ key, label, type, icon }) => (
-                  <div key={key} className="space-y-2">
+                  <div key={key} className="space-y-2.5">
                     <label className="text-sm font-medium flex items-center gap-2">
                       {icon}{label}
                     </label>
@@ -221,10 +221,10 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
           { key: "weeklyReport", label: "Weekly Report",        desc: "Receive weekly delivery summary report",             icon: <Globe className="size-4 text-muted-foreground" /> },
         ]
         return (
-          <div>
-            <SectionHeader icon={<Bell className="size-4" />} title="Notifications" description="Manage the notifications you receive." />
+          <div className="space-y-6">
+            <SectionHeader icon={<Bell className="size-5" />} title="Notifications" description="Manage the notifications you receive." />
 
-            <FieldGroup className="w-full">
+            <FieldGroup className="w-full space-y-3">
               {NOTIF_ITEMS.map(({ key, label, desc, icon }) => (
                 <Field key={key} orientation="horizontal"
                   className="justify-between rounded-xl border border-border bg-card px-4 py-3.5 shadow-sm hover:bg-accent/30 transition-colors"
@@ -263,10 +263,10 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
       // ── Appearance: Font ──────────────────────────────────────────────────
       case "appearance-font":
         return (
-          <div>
-            <SectionHeader icon={<Type className="size-4" />} title="Font Style" description="Choose a font for the entire app." />
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="space-y-6">
+            <SectionHeader icon={<Type className="size-5" />} title="Font Style" description="Choose a font for the entire app." />
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {FONT_OPTIONS.map(opt => {
                   const isSelected = selectedFont === opt.id
                   const isApplied  = appFont === opt.id
@@ -306,11 +306,11 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
       // ── Map: Default View ─────────────────────────────────────────────────
       case "map-defaultview":
         return (
-          <div>
-            <SectionHeader icon={<Navigation className="size-4" />} title="Default Map View" description="Coordinates and zoom shown by default in Map Marker." />
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
+          <div className="space-y-6">
+            <SectionHeader icon={<Navigation className="size-5" />} title="Default Map View" description="Coordinates and zoom shown by default in Map Marker." />
+            <div className="space-y-5">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5\">
+                <div className="space-y-2.5">
                   <label className="text-sm font-medium">Latitude</label>
                   <Input value={mapLat} onChange={e => setMapLat(e.target.value)} placeholder="3.0695500" className="font-mono" />
                 </div>
@@ -346,8 +346,8 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
         }
 
         return (
-          <div>
-            <SectionHeader icon={<Palette className="size-4" />} title="Route Card Colours" description="Set a colour for each route. It applies to the route card, map marker, and rooster schedule." />
+          <div className="space-y-6">
+            <SectionHeader icon={<Palette className="size-5" />} title="Route Card Colours" description="Set a colour for each route. It applies to the route card, map marker, and rooster schedule." />
 
             {routesListLoading ? (
               <div className="flex items-center justify-center py-16 text-muted-foreground text-sm">Loading routes...</div>
@@ -428,9 +428,9 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
       // ── Security ──────────────────────────────────────────────────────────
       case "security":
         return (
-          <div>
-            <SectionHeader icon={<Lock className="size-4" />} title="Security" description="Tukar kata laluan akaun anda." />
-            <div className="space-y-4">
+          <div className="space-y-6">
+            <SectionHeader icon={<Lock className="size-5" />} title="Security" description="Tukar kata laluan akaun anda." />
+            <div className="space-y-5">
               {/* ImgBB API Key */}
               <div className="space-y-2">
                 <label className="text-sm font-medium flex items-center gap-2">
@@ -463,7 +463,7 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
 
               <Separator />
 
-              <div className="space-y-2">
+                <div className="space-y-2.5">
                 <label className="text-sm font-medium flex items-center gap-2"><Shield className="size-4" />Current Password</label>
                 <div className="relative">
                   <Input type={showPasswords.current ? "text" : "password"} value={security.currentPassword} onChange={e => setSecurity({ ...security, currentPassword: e.target.value })} placeholder="Enter current password" className="pr-10" />
@@ -472,8 +472,8 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
                   </button>
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-2.5">
                   <label className="text-sm font-medium">New Password</label>
                   <div className="relative">
                     <Input type={showPasswords.new ? "text" : "password"} value={security.newPassword} onChange={e => setSecurity({ ...security, newPassword: e.target.value })} placeholder="Enter new password" className="pr-10" />
@@ -482,7 +482,7 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
                     </button>
                   </div>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2.5\">
                   <label className="text-sm font-medium">Confirm Password</label>
                   <div className="relative">
                     <Input type={showPasswords.confirm ? "text" : "password"} value={security.confirmPassword} onChange={e => setSecurity({ ...security, confirmPassword: e.target.value })} placeholder="Confirm new password" className="pr-10" />
@@ -516,10 +516,10 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
   }
 
   return (
-    <div className="flex flex-1 flex-col min-h-0 overflow-y-auto p-4 md:p-6 max-w-3xl w-full mx-auto" style={{ paddingBottom: "calc(1.5rem + env(safe-area-inset-bottom))" }}>
-      {renderContent()}
-
-
+    <div className="flex flex-1 flex-col min-h-0 overflow-y-auto p-6 md:p-8 max-w-4xl w-full mx-auto" style={{ paddingBottom: "calc(2.5rem + env(safe-area-inset-bottom))" }}>
+      <div className="space-y-8">
+        {renderContent()}
+      </div>
     </div>
   )
 }

@@ -100,6 +100,7 @@ function QuickActionCard({
 function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
   const [tableExpanded, setTableExpanded] = useState(false)
   const [legendOpen, setLegendOpen] = useState(false)
+  const [confirmingLink, setConfirmingLink] = useState<string | null>(null)
   const todayIndex = (new Date().getDay() + 6) % 7
 
   const [pinnedRoutes, setPinnedRoutes] = useState<Array<{ id: string; name: string; code: string; shift: string }>>(() => {
@@ -136,7 +137,7 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
         <div>
           <div className="mb-2.5 flex items-center justify-between gap-2 px-0.5">
             <div className="flex items-center gap-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Pinned Routes</p>
+              <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Pinned Routes</p>
               <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
                 {pinnedRoutesOrdered.length}
               </span>
@@ -188,7 +189,7 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
 
       {/* ── Quick Actions ─────────────────────────────────────── */}
       <div>
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2.5 px-0.5">Quick Access</p>
+        <p className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2.5 px-0.5">Quick Access</p>
         <div className="grid grid-cols-2 gap-3">
           <QuickActionCard icon={ClipboardList} label="Route List" description="Manage vending routes" page="route-list" iconClass="text-violet-500"  onNavigate={onNavigate} />
           <QuickActionCard icon={MapPin}        label="Location"   description="Delivery records"       page="deliveries" iconClass="text-emerald-500" onNavigate={onNavigate} />
@@ -201,7 +202,7 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
 
       {/* ── Color Guide Table ─────────────────────────────────── */}
       <div>
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2.5 px-0.5">Colour Guide</p>
+        <p className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2.5 px-0.5">Colour Guide</p>
         <div className="rounded-xl overflow-hidden border border-border bg-card shadow-sm">
           {/* Header */}
           <div className="grid grid-cols-4 items-end border-b border-border bg-card px-4 py-3 gap-2">
@@ -299,7 +300,7 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
 
       {/* ── Tool & Equipment ──────────────────────────────────── */}
       <div>
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2.5 px-0.5">Tool &amp; Equipment</p>
+        <p className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2.5 px-0.5">Tool &amp; Equipment</p>
         <div className="rounded-2xl overflow-hidden border border-border/60 shadow-sm bg-card divide-y divide-border/40">
           {[
             {
@@ -354,15 +355,39 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
 
             if (href) {
               return (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/30 active:scale-[0.98] transition-all group text-left"
-                >
-                  {content}
-                </a>
+                <Popover open={confirmingLink === label} onOpenChange={(open) => !open && setConfirmingLink(null)}>
+                  <PopoverTrigger asChild>
+                    <button
+                      key={label}
+                      onClick={() => setConfirmingLink(label)}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/30 active:scale-[0.98] transition-all group text-left"
+                    >
+                      {content}
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-48" side="top" align="start">
+                    <div className="space-y-3">
+                      <p className="text-sm font-medium">Open {label}?</p>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            setConfirmingLink(null)
+                            window.open(href, '_blank', 'noopener,noreferrer')
+                          }}
+                          className="flex-1 px-3 py-1.5 text-xs font-semibold bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+                        >
+                          Open
+                        </button>
+                        <button
+                          onClick={() => setConfirmingLink(null)}
+                          className="flex-1 px-3 py-1.5 text-xs font-semibold border border-border rounded-md hover:bg-muted/50 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
               )
             }
 
