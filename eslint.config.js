@@ -16,7 +16,7 @@ export default defineConfig([
       reactRefresh.configs.vite,
       {
         rules: {
-          'react-refresh/only-export-components': ['warn', { allowExportingHooks: true }],
+          'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
         },
       },
     ],

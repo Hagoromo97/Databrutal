@@ -3,7 +3,7 @@ import type { ReactNode } from "react"
 import {
   User, Bell, Lock, Globe, Mail, Phone, Save, Shield,
   Eye, EyeOff, Check, Type, Copy,
-  AlertTriangle, Navigation, Palette,
+  Navigation, Palette,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { useTheme, FONT_OPTIONS, type AppFont } from "@/hooks/use-theme"
 import { useEditMode } from "@/contexts/EditModeContext"
+import { LS_IMGBB_KEY } from "@/lib/imgbb"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type SectionId =
@@ -21,7 +22,6 @@ type SectionId =
   | "map-defaultview"
   | "route-colors"
   | "security"
-  | "danger"
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const LS_DEFAULT_VIEW = "mapMarkerDefaultView"
@@ -77,8 +77,7 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
   const [showPasswords, setShowPasswords] = useState({ current: false, new: false, confirm: false })
 
   // ImgBB API key
-  const LS_IMGBB_KEY = "app_imgbb_api_key"
-  const [imgbbKey, setImgbbKey] = useState(() => localStorage.getItem("app_imgbb_api_key") ?? "")
+  const [imgbbKey, setImgbbKey] = useState(() => localStorage.getItem(LS_IMGBB_KEY) ?? "")
   const [showImgbbKey, setShowImgbbKey] = useState(false)
   const [imgbbKeySaved, setImgbbKeySaved] = useState(false)
 
@@ -505,25 +504,6 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
               <div className="flex justify-end">
                 <Button onClick={handleChangePassword} disabled={!security.currentPassword || !security.newPassword || !security.confirmPassword}>
                   <Lock className="size-4 mr-2" />Change Password
-                </Button>
-              </div>
-            </div>
-          </div>
-        )
-
-      // ── Danger Zone ───────────────────────────────────────────────────────
-      case "danger":
-        return (
-          <div>
-            <SectionHeader icon={<AlertTriangle className="size-4 text-destructive" />} title="Danger Zone" description="Actions that cannot be undone." />
-            <div className="bg-destructive/10 rounded-lg border border-destructive/50 p-6">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="font-medium">Delete Account</p>
-                  <p className="text-sm text-muted-foreground">Permanently delete your account and all associated data.</p>
-                </div>
-                <Button variant="destructive" onClick={() => { if (confirm("Are you sure? This cannot be undone.")) alert("Account deletion requested. Please contact administrator.") }}>
-                  Delete Account
                 </Button>
               </div>
             </div>

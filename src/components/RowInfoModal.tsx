@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { uploadImageToImgBB } from "@/lib/imgbb"
 
 interface DeliveryPoint {
   code: string
@@ -123,18 +124,6 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, onSave }: 
     avatarLGInstance.current.openGallery(idx >= 0 ? idx : 0)
   }
 
-  const uploadToImgBB = async (file: File): Promise<string> => {
-    const formData = new FormData()
-    formData.append("image", file)
-    const res = await fetch(`https://api.imgbb.com/1/upload?key=4042c537845e8b19b443add46f4a859c`, {
-      method: "POST",
-      body: formData,
-    })
-    const data = await res.json()
-    if (!data.success) throw new Error("Upload failed")
-    return data.data.url as string
-  }
-
   const [isUploadingQR, setIsUploadingQR] = useState(false)
   const [qrDecodeStatus, setQrDecodeStatus] = useState<"idle" | "decoding" | "decoded" | "failed">("idle")
 
@@ -155,7 +144,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, onSave }: 
     setIsUploadingQR(true)
     setQrDecodeStatus("decoding")
     try {
-      const url = await uploadToImgBB(file)
+      const url = await uploadImageToImgBB(file)
       setQrCodeImageUrl(url)
       const decoded = await decodeQrFromSource(file)
       if (decoded) {
@@ -644,7 +633,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, onSave }: 
                             try {
                               const urls: string[] = []
                               for (const file of files) {
-                                const url = await uploadToImgBB(file)
+                                const url = await uploadImageToImgBB(file)
                                 urls.push(url)
                               }
                               toast.dismiss(uploadToastId)

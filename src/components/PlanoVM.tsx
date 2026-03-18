@@ -4,6 +4,7 @@ import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useEditMode } from "@/contexts/EditModeContext"
+import { uploadImageToImgBB } from "@/lib/imgbb"
 import "lightgallery/css/lightgallery.css"
 import "lightgallery/css/lg-thumbnail.css"
 import "lightgallery/css/lg-zoom.css"
@@ -98,18 +99,6 @@ export function PlanoVM() {
   const [editUploading, setEditUploading] = useState(false)
   const addFileRef = useRef<HTMLInputElement>(null)
   const editFileRef = useRef<HTMLInputElement>(null)
-
-  const uploadToImgBB = async (file: File): Promise<string> => {
-    const formData = new FormData()
-    formData.append("image", file)
-    const res = await fetch(`https://api.imgbb.com/1/upload?key=4042c537845e8b19b443add46f4a859c`, {
-      method: "POST",
-      body: formData,
-    })
-    if (!res.ok) throw new Error("Upload failed")
-    const data = await res.json()
-    return data.data.display_url as string
-  }
 
   const currentPage = pages.find(p => p.id === activePage)
 
@@ -893,7 +882,7 @@ export function PlanoVM() {
                       if (!file) return
                       setAddUploading(true)
                       try {
-                        const url = await uploadToImgBB(file)
+                        const url = await uploadImageToImgBB(file)
                         setNewImage(prev => ({ ...prev, url }))
                       } catch {
                         alert("Upload failed. Please try again.")
@@ -1017,7 +1006,7 @@ export function PlanoVM() {
                       if (!file) return
                       setEditUploading(true)
                       try {
-                        const url = await uploadToImgBB(file)
+                        const url = await uploadImageToImgBB(file)
                         setEditImage(prev => ({ ...prev, url }))
                       } catch {
                         alert("Upload failed. Please try again.")
