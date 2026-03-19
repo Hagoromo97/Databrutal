@@ -314,7 +314,7 @@ export function DeliveryTableDialog() {
             placeholder="Search code, name, route…"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="pl-8 pr-8 h-8 text-xs rounded-lg"
+            className="pl-8 pr-8 h-8 text-[11px] md:text-[11px] rounded-lg"
           />
           {search && (
             <button onClick={() => setSearch("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">

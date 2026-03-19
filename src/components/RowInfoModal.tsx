@@ -310,13 +310,13 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, onSave }: 
                       placeholder="Key"
                       value={d.key}
                       onChange={e => handleChange(i, "key", e.target.value)}
-                      className="w-28 h-8 text-sm"
+                      className="w-28 h-8 text-[11px] md:text-[11px]"
                     />
                     <Input
                       placeholder="Value"
                       value={d.value}
                       onChange={e => handleChange(i, "value", e.target.value)}
-                      className="flex-1 h-8 text-sm"
+                      className="flex-1 h-8 text-[11px] md:text-[11px]"
                     />
                     <button
                       onClick={() => handleRemove(i)}
@@ -585,7 +585,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, onSave }: 
                           value={avatarUrlInput}
                           onChange={e => setAvatarUrlInput(e.target.value)}
                           placeholder="https://example.com/image.jpg"
-                          className="h-8 text-sm flex-1"
+                          className="h-8 text-[11px] md:text-[11px] flex-1"
                         />
                         <Button
                           size="sm"
@@ -759,7 +759,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, onSave }: 
                       <div className="space-y-1.5">
                         <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">QR Image URL</label>
                         <Input value={qrCodeImageUrl} onChange={e => setQrCodeImageUrl(e.target.value)}
-                          placeholder="https://example.com/qr.png" className="h-9 text-sm" />
+                          placeholder="https://example.com/qr.png" className="h-9 text-[11px] md:text-[11px]" />
                       </div>
                     )}
 
@@ -817,7 +817,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, onSave }: 
                         )}
                       </div>
                       <Input value={qrCodeDestinationUrl} onChange={e => setQrCodeDestinationUrl(e.target.value)}
-                        placeholder="https://example.com/destination" className="h-9 text-sm" />
+                        placeholder="https://example.com/destination" className="h-9 text-[11px] md:text-[11px]" />
                     </div>
                   </>
                 )}

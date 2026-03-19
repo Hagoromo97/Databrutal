@@ -213,7 +213,7 @@ export function AppSidebar({
             placeholder="Search..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="sidebar-search h-8 w-full rounded-md border border-input bg-background pl-8 pr-7 text-sm shadow-none outline-none ring-0 transition-all duration-200 placeholder:text-muted-foreground/60 focus:ring-1 focus:ring-ring"
+            className="sidebar-search h-8 w-full rounded-md border border-input bg-background pl-8 pr-7 text-[11px] md:text-[11px] shadow-none outline-none ring-0 transition-all duration-200 placeholder:text-muted-foreground/60 focus:ring-1 focus:ring-ring"
           />
           {searchQuery && (
             <button

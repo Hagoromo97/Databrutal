@@ -738,6 +738,28 @@ export function RouteList() {
 
     const nextValue = editingCell.field === 'code' ? normalizePointCode(editValue) : editValue
 
+    const currentPoint = deliveryPoints.find(point => point.code === editingCell.rowCode)
+    if (!currentPoint) return
+
+    const hasChanged = (() => {
+      if (editingCell.field === 'code') return nextValue !== currentPoint.code
+      if (editingCell.field === 'name') return nextValue !== currentPoint.name
+      if (editingCell.field === 'latitude') {
+        const numValue = parseFloat(editValue)
+        return !isNaN(numValue) && numValue !== currentPoint.latitude
+      }
+      if (editingCell.field === 'longitude') {
+        const numValue = parseFloat(editValue)
+        return !isNaN(numValue) && numValue !== currentPoint.longitude
+      }
+      return nextValue !== String((currentPoint as Record<string, unknown>)[editingCell.field] ?? "")
+    })()
+
+    if (!hasChanged) {
+      cancelEdit()
+      return
+    }
+
     if (editingCell.field === 'code' && !isPointCodeValid(nextValue)) {
       setEditError("Code must be numeric and up to 4 digits")
       return
@@ -1219,7 +1241,7 @@ export function RouteList() {
   const editTitleFs = cardFontLg
   const editMetaFs = cardFontXs
   const editLabelFs = cardFontXs
-  const editInputFs = cardFontSm
+  const editInputFs = '11px'
   const editActionFs = btnFs
   const editChipFs = badgeFs
   const previewRows = cardH >= 520 ? 5 : cardH >= 460 ? 4 : 3
@@ -1256,7 +1278,7 @@ export function RouteList() {
               placeholder="Search routes…"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full h-12 pl-11 pr-10 bg-card rounded-xl text-sm placeholder:text-muted-foreground/40 outline-none ring-1 ring-border/60 focus:ring-2 focus:ring-primary/40 shadow-sm transition-shadow"
+              className="w-full h-12 pl-11 pr-10 bg-card rounded-xl text-[11px] md:text-[11px] placeholder:text-muted-foreground/40 outline-none ring-1 ring-border/60 focus:ring-2 focus:ring-primary/40 shadow-sm transition-shadow"
             />
             {searchQuery && (
               <button
@@ -1887,7 +1909,10 @@ export function RouteList() {
                                   )
                                   if (col.key === 'code') return (
                                     <td key="code" className="px-4 h-10 text-center">
-                                      {isEditMode ? (
+                                      {(() => {
+                                        const isChanged = editingCell?.rowCode === point.code && editingCell.field === 'code' && normalizePointCode(editValue) !== point.code
+                                        const canSave = isChanged && !editError
+                                        return isEditMode ? (
                                       <Popover
                                         open={isEditMode && !!popoverOpen[`${point.code}-code`]}
                                         onOpenChange={(open) => {
@@ -1897,8 +1922,8 @@ export function RouteList() {
                                         }}
                                       >
                                         <PopoverTrigger asChild>
-                                          <button className="hover:bg-accent px-3 py-1 rounded flex items-center justify-center gap-1.5 group mx-auto" onClick={() => startEdit(point.code, 'code', point.code)}>
-                                            <span className={pendingCellEdits.has(`${point.code}-code`) ? 'text-amber-600 dark:text-amber-400 font-semibold' : ''}>{point.code}</span>
+                                          <button className="hover:bg-accent px-3 py-1 rounded flex items-center justify-center gap-1.5 group mx-auto text-[11px] font-semibold" onClick={() => startEdit(point.code, 'code', point.code)}>
+                                            <span className={`text-[11px] font-semibold ${pendingCellEdits.has(`${point.code}-code`) ? 'text-amber-600 dark:text-amber-400' : ''}`}>{point.code}</span>
                                             <Edit2 className="size-3 opacity-0 group-hover:opacity-50 transition-opacity" />
                                           </button>
                                         </PopoverTrigger>
@@ -1907,7 +1932,7 @@ export function RouteList() {
                                             <div className="space-y-2">
                                               <label className="text-sm font-medium">Code</label>
                                               <Input
-                                                className={`text-center ${editError ? 'border-red-500 focus-visible:ring-red-500/30' : ''}`}
+                                                className={`h-8 text-[11px] md:text-[11px] font-semibold leading-none text-center ${editError ? 'border-red-500 focus-visible:ring-red-500/30' : ''}`}
                                                 value={editValue}
                                                 onChange={(e) => handleEditCodeChange(e.target.value)}
                                                 placeholder="0000"
@@ -1920,18 +1945,22 @@ export function RouteList() {
                                               {editError && <p className="text-xs text-red-500">{editError}</p>}
                                             </div>
                                             <div className="flex gap-2">
-                                              <Button size="sm" onClick={saveEdit} disabled={!!editError} className="flex-1"><Check className="size-4 mr-1" /> Save</Button>
-                                              <Button size="sm" variant="outline" onClick={cancelEdit} className="flex-1"><X className="size-4 mr-1" /> Cancel</Button>
+                                              <Button size="sm" onClick={saveEdit} disabled={!canSave} className={`flex-1 border-0 ${canSave ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-gray-300 text-gray-500 hover:bg-gray-300'}`}><Check className="size-4 mr-1" /> Save</Button>
+                                              <Button size="sm" onClick={cancelEdit} className="flex-1 border-0 bg-red-600 text-white hover:bg-red-700"><X className="size-4 mr-1" /> Cancel</Button>
                                             </div>
                                           </div>
                                         </PopoverContent>
                                       </Popover>
-                                      ) : (<span className="text-[11px] font-semibold">{point.code}</span>)}
+                                      ) : (<span className="text-[11px] font-semibold">{point.code}</span>)
+                                      })()}
                                     </td>
                                   )
                                   if (col.key === 'name') return (
                                     <td key="name" className="px-3 h-9 text-center">
-                                      {isEditMode ? (
+                                      {(() => {
+                                        const isChanged = editingCell?.rowCode === point.code && editingCell.field === 'name' && editValue !== point.name
+                                        const canSave = isChanged
+                                        return isEditMode ? (
                                       <Popover
                                         open={isEditMode && !!popoverOpen[`${point.code}-name`]}
                                         onOpenChange={(open) => {
@@ -1941,8 +1970,8 @@ export function RouteList() {
                                         }}
                                       >
                                         <PopoverTrigger asChild>
-                                          <button className="hover:bg-accent px-3 py-1 rounded flex items-center justify-center gap-1.5 group mx-auto" onClick={() => startEdit(point.code, 'name', point.name)}>
-                                            <span className={pendingCellEdits.has(`${point.code}-name`) ? 'text-amber-600 dark:text-amber-400 font-semibold' : ''}>{point.name}</span>
+                                          <button className="hover:bg-accent px-3 py-1 rounded flex items-center justify-center gap-1.5 group mx-auto text-[11px] font-semibold" onClick={() => startEdit(point.code, 'name', point.name)}>
+                                            <span className={`text-[11px] font-semibold ${pendingCellEdits.has(`${point.code}-name`) ? 'text-amber-600 dark:text-amber-400' : ''}`}>{point.name}</span>
                                             <Edit2 className="size-3 opacity-0 group-hover:opacity-50 transition-opacity" />
                                           </button>
                                         </PopoverTrigger>
@@ -1950,16 +1979,17 @@ export function RouteList() {
                                           <div className="space-y-3">
                                             <div className="space-y-2">
                                               <label className="text-sm font-medium">Name</label>
-                                              <Input className="text-center" value={editValue} onChange={(e) => setEditValue(e.target.value)} placeholder="Enter name" autoFocus onKeyDown={(e) => { if (e.key === 'Enter') saveEdit(); if (e.key === 'Escape') cancelEdit() }} />
+                                              <Input className="h-8 text-[11px] md:text-[11px] font-semibold leading-none text-center" value={editValue} onChange={(e) => setEditValue(e.target.value)} placeholder="Enter name" autoFocus onKeyDown={(e) => { if (e.key === 'Enter') saveEdit(); if (e.key === 'Escape') cancelEdit() }} />
                                             </div>
                                             <div className="flex gap-2">
-                                              <Button size="sm" onClick={saveEdit} className="flex-1"><Check className="size-4 mr-1" /> Save</Button>
-                                              <Button size="sm" variant="outline" onClick={cancelEdit} className="flex-1"><X className="size-4 mr-1" /> Cancel</Button>
+                                              <Button size="sm" onClick={saveEdit} disabled={!canSave} className={`flex-1 border-0 ${canSave ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-gray-300 text-gray-500 hover:bg-gray-300'}`}><Check className="size-4 mr-1" /> Save</Button>
+                                              <Button size="sm" onClick={cancelEdit} className="flex-1 border-0 bg-red-600 text-white hover:bg-red-700"><X className="size-4 mr-1" /> Cancel</Button>
                                             </div>
                                           </div>
                                         </PopoverContent>
                                       </Popover>
-                                      ) : (<span className="text-[11px] font-semibold">{point.name}</span>)}
+                                      ) : (<span className="text-[11px] font-semibold">{point.name}</span>)
+                                      })()}
                                     </td>
                                   )
                                   if (col.key === 'delivery') {
@@ -2008,6 +2038,8 @@ export function RouteList() {
                                   )
                                   if (col.key === 'lat') {
                                     if (!isEditMode) return null
+                                    const isChanged = editingCell?.rowCode === point.code && editingCell.field === 'latitude' && !isNaN(parseFloat(editValue)) && parseFloat(editValue) !== point.latitude
+                                    const canSave = isChanged
                                     return (
                                       <td key="lat" className="px-3 h-9 text-center font-mono">
                                         <Popover open={isEditMode && !!popoverOpen[`${point.code}-latitude`]} onOpenChange={(open) => { if (!isEditMode) return; if (!open) cancelEdit(); setPopoverOpen({ [`${point.code}-latitude`]: open }) }}>
@@ -2016,13 +2048,15 @@ export function RouteList() {
                                               <span className={pendingCellEdits.has(`${point.code}-latitude`) ? 'text-amber-600 dark:text-amber-400 font-semibold' : ''}>{point.latitude.toFixed(4)}</span><Edit2 className="size-3 opacity-0 group-hover:opacity-50 transition-opacity" />
                                             </button>
                                           </PopoverTrigger>
-                                          <PopoverContent className="w-64"><div className="space-y-3"><div className="space-y-2"><label className="text-sm font-medium">Latitude</label><Input className="text-center font-mono" type="number" step="0.0001" value={editValue} onChange={(e) => setEditValue(e.target.value)} placeholder="Enter latitude" autoFocus onKeyDown={(e) => { if (e.key === 'Enter') saveEdit(); if (e.key === 'Escape') cancelEdit() }} /></div><div className="flex gap-2"><Button size="sm" onClick={saveEdit} className="flex-1"><Check className="size-4 mr-1" /> Save</Button><Button size="sm" variant="outline" onClick={cancelEdit} className="flex-1"><X className="size-4 mr-1" /> Cancel</Button></div></div></PopoverContent>
+                                          <PopoverContent className="w-64"><div className="space-y-3"><div className="space-y-2"><label className="text-sm font-medium">Latitude</label><Input className="h-8 text-[11px] md:text-[11px] font-semibold leading-none text-center font-mono" type="number" step="0.0001" value={editValue} onChange={(e) => setEditValue(e.target.value)} placeholder="Enter latitude" autoFocus onKeyDown={(e) => { if (e.key === 'Enter') saveEdit(); if (e.key === 'Escape') cancelEdit() }} /></div><div className="flex gap-2"><Button size="sm" onClick={saveEdit} disabled={!canSave} className={`flex-1 border-0 ${canSave ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-gray-300 text-gray-500 hover:bg-gray-300'}`}><Check className="size-4 mr-1" /> Save</Button><Button size="sm" onClick={cancelEdit} className="flex-1 border-0 bg-red-600 text-white hover:bg-red-700"><X className="size-4 mr-1" /> Cancel</Button></div></div></PopoverContent>
                                         </Popover>
                                       </td>
                                     )
                                   }
                                   if (col.key === 'lng') {
                                     if (!isEditMode) return null
+                                    const isChanged = editingCell?.rowCode === point.code && editingCell.field === 'longitude' && !isNaN(parseFloat(editValue)) && parseFloat(editValue) !== point.longitude
+                                    const canSave = isChanged
                                     return (
                                       <td key="lng" className="px-3 h-9 text-center font-mono">
                                         <Popover open={isEditMode && !!popoverOpen[`${point.code}-longitude`]} onOpenChange={(open) => { if (!isEditMode) return; if (!open) cancelEdit(); setPopoverOpen({ [`${point.code}-longitude`]: open }) }}>
@@ -2031,7 +2065,7 @@ export function RouteList() {
                                               <span className={pendingCellEdits.has(`${point.code}-longitude`) ? 'text-amber-600 dark:text-amber-400 font-semibold' : ''}>{point.longitude.toFixed(4)}</span><Edit2 className="size-3 opacity-0 group-hover:opacity-50 transition-opacity" />
                                             </button>
                                           </PopoverTrigger>
-                                          <PopoverContent className="w-64"><div className="space-y-3"><div className="space-y-2"><label className="text-sm font-medium">Longitude</label><Input className="text-center font-mono" type="number" step="0.0001" value={editValue} onChange={(e) => setEditValue(e.target.value)} placeholder="Enter longitude" autoFocus onKeyDown={(e) => { if (e.key === 'Enter') saveEdit(); if (e.key === 'Escape') cancelEdit() }} /></div><div className="flex gap-2"><Button size="sm" onClick={saveEdit} className="flex-1"><Check className="size-4 mr-1" /> Save</Button><Button size="sm" variant="outline" onClick={cancelEdit} className="flex-1"><X className="size-4 mr-1" /> Cancel</Button></div></div></PopoverContent>
+                                          <PopoverContent className="w-64"><div className="space-y-3"><div className="space-y-2"><label className="text-sm font-medium">Longitude</label><Input className="h-8 text-[11px] md:text-[11px] font-semibold leading-none text-center font-mono" type="number" step="0.0001" value={editValue} onChange={(e) => setEditValue(e.target.value)} placeholder="Enter longitude" autoFocus onKeyDown={(e) => { if (e.key === 'Enter') saveEdit(); if (e.key === 'Escape') cancelEdit() }} /></div><div className="flex gap-2"><Button size="sm" onClick={saveEdit} disabled={!canSave} className={`flex-1 border-0 ${canSave ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-gray-300 text-gray-500 hover:bg-gray-300'}`}><Check className="size-4 mr-1" /> Save</Button><Button size="sm" onClick={cancelEdit} className="flex-1 border-0 bg-red-600 text-white hover:bg-red-700"><X className="size-4 mr-1" /> Cancel</Button></div></div></PopoverContent>
                                         </Popover>
                                       </td>
                                     )
@@ -2279,7 +2313,7 @@ export function RouteList() {
                     <div className="space-y-4 py-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <label className="text-sm font-medium">
+                          <label className="text-[11px] font-medium">
                             Code <span className="text-red-500">*</span>
                           </label>
                           <Input
@@ -2297,9 +2331,9 @@ export function RouteList() {
                         </div>
                         
                         <div className="space-y-2">
-                          <label className="text-sm font-medium">Label</label>
+                          <label className="text-[11px] font-medium">Label</label>
                           <select
-                            className="w-full p-2 rounded border border-border bg-background text-sm"
+                            className="w-full p-2 rounded border border-border bg-background text-[11px] md:text-[11px]"
                             value={newPoint.delivery}
                             onChange={(e) => setNewPoint({ ...newPoint, delivery: e.target.value })}
                           >
@@ -2311,7 +2345,7 @@ export function RouteList() {
                       </div>
                       
                       <div className="space-y-2">
-                        <label className="text-sm font-medium">Name</label>
+                        <label className="text-[11px] font-medium">Name</label>
                         <Input
                           placeholder="Enter location name"
                           value={newPoint.name}
@@ -2321,7 +2355,7 @@ export function RouteList() {
                       
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <label className="text-sm font-medium">Latitude</label>
+                          <label className="text-[11px] font-medium">Latitude</label>
                           <Input
                             type="number"
                             step="0.0001"
@@ -2332,7 +2366,7 @@ export function RouteList() {
                         </div>
                         
                         <div className="space-y-2">
-                          <label className="text-sm font-medium">Longitude</label>
+                          <label className="text-[11px] font-medium">Longitude</label>
                           <Input
                             type="number"
                             step="0.0001"
@@ -2815,16 +2849,16 @@ export function RouteList() {
             {/* ── ROW CUSTOMIZE ── */}
             {settingsMenu === 'row' && (
               <div className="p-6 space-y-4">
-                <p className="text-[13px] text-muted-foreground">Input a position number to reorder rows. No duplicates allowed.</p>
+                <p className="text-[11px] text-muted-foreground">Input a position number to reorder rows. No duplicates allowed.</p>
                 {rowOrderError && (
-                  <p className="text-[13px] text-destructive font-medium">{rowOrderError}</p>
+                  <p className="text-[11px] text-destructive font-medium">{rowOrderError}</p>
                 )}
                 <div className={`space-y-2.5 relative transition-opacity duration-300 ${rowSaving ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}>
                   {rowSaving && (
                     <div className="absolute inset-0 flex items-center justify-center z-10">
                       <div className="bg-background/90 backdrop-blur-sm rounded-xl px-5 py-3 flex items-center gap-2.5 shadow-lg border border-border">
                         <Loader2 className="size-5 animate-spin text-primary" />
-                        <span className="text-[13px] font-semibold text-foreground">Sorting rows…</span>
+                        <span className="text-[11px] font-semibold text-foreground">Sorting rows…</span>
                       </div>
                     </div>
                   )}
@@ -2836,7 +2870,7 @@ export function RouteList() {
                           onChange={(e) => handleRowPositionChange(row.code, e.target.value)}
                           onFocus={(e) => e.target.select()}
                           placeholder="#"
-                          className={`w-16 text-center text-[13px] font-semibold ${
+                          className={`w-16 text-center text-[11px] md:text-[11px] font-semibold ${
                             row.position !== '' && draftRowOrder.filter(r => r.position !== '' && r.position === row.position).length > 1
                               ? 'border-destructive focus-visible:ring-destructive/30'
                               : ''
@@ -2845,9 +2879,9 @@ export function RouteList() {
                           maxLength={3}
                         />
                       </div>
-                      <span className="w-20 text-[13px] font-mono font-semibold text-center">{row.code}</span>
-                      <span className="flex-1 text-[13px] text-center">{row.name}</span>
-                      <span className="text-xs font-semibold text-muted-foreground shrink-0">{row.delivery}</span>
+                      <span className="w-20 text-[11px] font-mono font-semibold text-center">{row.code}</span>
+                      <span className="flex-1 text-[11px] text-center">{row.name}</span>
+                      <span className="text-[11px] font-semibold text-muted-foreground shrink-0">{row.delivery}</span>
                     </div>
                   ))}
                 </div>
@@ -2983,7 +3017,7 @@ export function RouteList() {
                 {draftRowOrder.some(r => r.position !== '') && !rowOrderError && (
                   <button
                     disabled={rowSaving}
-                    className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors disabled:opacity-50 flex items-center gap-1.5"
+                    className="text-[11px] font-semibold text-primary hover:text-primary/80 transition-colors disabled:opacity-50 flex items-center gap-1.5"
                     onClick={saveRowOrder}
                   >
                     {rowSaving ? (
