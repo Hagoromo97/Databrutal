@@ -23,6 +23,7 @@ export function NavMain({
   onItemClick,
   onSubItemClick,
   searchQuery = "",
+  currentPage,
   openItem: controlledOpenItem,
   onOpenItemChange,
 }: {
@@ -42,6 +43,7 @@ export function NavMain({
   onItemClick?: (title: string) => void
   onSubItemClick?: (page: string) => void
   searchQuery?: string
+  currentPage?: string
   openItem?: string | null
   onOpenItemChange?: (item: string | null) => void
 }) {
@@ -85,17 +87,13 @@ export function NavMain({
               onOpenChange={hasChildren ? (open) => { if (!isSearching) setOpenItem(open ? item.title : null) } : undefined}
             >
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip={item.title} className="font-semibold transition-colors duration-150">
-                  <a
-                    href={item.url}
-                    onClick={(e) => {
-                      e.preventDefault()
-                      handleToggle(item.title, hasChildren, item.page)
-                    }}
-                  >
-                    <item.icon style={item.color ? { color: item.color } : undefined} />
-                    <span>{item.title}</span>
-                  </a>
+                <SidebarMenuButton
+                  tooltip={item.title}
+                  className="font-semibold transition-colors duration-150"
+                  onClick={() => handleToggle(item.title, hasChildren, item.page)}
+                >
+                  <item.icon style={item.color ? { color: item.color } : undefined} />
+                  <span>{item.title}</span>
                 </SidebarMenuButton>
                 {hasChildren ? (
                   <>
@@ -111,16 +109,14 @@ export function NavMain({
                       <SidebarMenuSub>
                         {item.items?.map((subItem) => (
                           <SidebarMenuSubItem key={subItem.title}>
-                            <SidebarMenuSubButton asChild className="transition-colors duration-150">
-                              <a
-                                href={subItem.url}
-                                onClick={(e) => {
-                                  e.preventDefault()
-                                  if (subItem.page) onSubItemClick?.(subItem.page)
-                                }}
-                              >
-                                <span>{subItem.title}</span>
-                              </a>
+                            <SidebarMenuSubButton
+                              className="transition-colors duration-150"
+                              isActive={currentPage === subItem.page}
+                              onClick={() => {
+                                if (subItem.page) onSubItemClick?.(subItem.page)
+                              }}
+                            >
+                              <span>{subItem.title}</span>
                             </SidebarMenuSubButton>
                           </SidebarMenuSubItem>
                         ))}

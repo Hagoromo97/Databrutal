@@ -231,6 +231,7 @@ export function AppSidebar({
           onItemClick={handleNavClick}
           onSubItemClick={handleSubItemClick}
           searchQuery={searchQuery}
+          currentPage={currentPage}
           openItem={openNavItem}
           onOpenItemChange={handleNavItemChange}
         />

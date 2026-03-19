@@ -2,8 +2,7 @@ import { useMemo, useState, useEffect, useRef } from "react"
 import { GoogleMap, useLoadScript, InfoWindow } from "@react-google-maps/api"
 
 const GMAP_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY ?? ""
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const LIBRARIES = ["marker"] as any
+const LIBRARIES: google.maps.Library[] = ["marker"]
 
 const DELIVERY_COLORS: Record<string, string> = {
   Daily:   "#22c55e",

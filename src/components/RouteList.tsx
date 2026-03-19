@@ -2774,7 +2774,7 @@ export function RouteList() {
 
       {/* ── Settings Modal ──────────────────────────────────────────── */}
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
-        <DialogContent className="w-[92vw] max-w-lg h-[74vh] max-h-[600px] overflow-hidden flex flex-col gap-0 p-0">
+        <DialogContent className="w-[92vw] max-w-lg h-[68vh] max-h-[560px] overflow-hidden flex flex-col gap-0 p-0">
           <div className="px-6 pt-5 pb-0 shrink-0">
             <DialogHeader className="text-center items-center">
               <DialogTitle className="text-sm font-bold">Table Settings</DialogTitle>
