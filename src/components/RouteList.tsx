@@ -103,6 +103,8 @@ interface Route {
   updatedAt?: string
 }
 
+type EditableField = 'code' | 'name' | 'latitude' | 'longitude'
+
 // Returns true if the delivery point is active on the given date
 function isDeliveryActive(delivery: string, date: Date = new Date()): boolean {
   const dayOfWeek = date.getDay()   // 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat
@@ -493,7 +495,7 @@ export function RouteList() {
   // Only show first 3 route cards when collapsed
   const displayedRoutes = showAllRoutes ? filteredRoutes : filteredRoutes.slice(0, 4)
 
-  const [editingCell, setEditingCell] = useState<{ rowCode: string; field: string } | null>(null)
+  const [editingCell, setEditingCell] = useState<{ rowCode: string; field: EditableField } | null>(null)
   const [editValue, setEditValue] = useState<string>("")
   const [editError, setEditError] = useState<string>("")
   const [popoverOpen, setPopoverOpen] = useState<{ [key: string]: boolean }>({})
@@ -720,7 +722,7 @@ export function RouteList() {
     return result
   }, [sortedDeliveryPoints, isCustomSort])
 
-  const startEdit = (rowCode: string, field: string, currentValue: string | number) => {
+  const startEdit = (rowCode: string, field: EditableField, currentValue: string | number) => {
     if (!isEditMode) return
     const key = `${rowCode}-${field}`
     setEditingCell({ rowCode, field })
@@ -752,7 +754,7 @@ export function RouteList() {
         const numValue = parseFloat(editValue)
         return !isNaN(numValue) && numValue !== currentPoint.longitude
       }
-      return nextValue !== String((currentPoint as Record<string, unknown>)[editingCell.field] ?? "")
+      return false
     })()
 
     if (!hasChanged) {
@@ -1945,8 +1947,8 @@ export function RouteList() {
                                               {editError && <p className="text-xs text-red-500">{editError}</p>}
                                             </div>
                                             <div className="flex gap-2">
-                                              <Button size="sm" onClick={saveEdit} disabled={!canSave} className={`flex-1 border-0 ${canSave ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-gray-300 text-gray-500 hover:bg-gray-300'}`}><Check className="size-4 mr-1" /> Save</Button>
-                                              <Button size="sm" onClick={cancelEdit} className="flex-1 border-0 bg-red-600 text-white hover:bg-red-700"><X className="size-4 mr-1" /> Cancel</Button>
+                                              <Button size="sm" onClick={saveEdit} disabled={!canSave} className={`flex-1 !border-0 !bg-transparent shadow-none hover:!bg-transparent ${canSave ? 'text-green-600 hover:text-green-700' : 'text-muted-foreground/50'}`}><Check className="size-4 mr-1" /> Save</Button>
+                                              <Button size="sm" onClick={cancelEdit} className="flex-1 !border-0 !bg-transparent text-red-600 shadow-none hover:!bg-transparent hover:text-red-700"><X className="size-4 mr-1" /> Cancel</Button>
                                             </div>
                                           </div>
                                         </PopoverContent>
@@ -1982,8 +1984,8 @@ export function RouteList() {
                                               <Input className="h-8 text-[11px] md:text-[11px] font-semibold leading-none text-center" value={editValue} onChange={(e) => setEditValue(e.target.value)} placeholder="Enter name" autoFocus onKeyDown={(e) => { if (e.key === 'Enter') saveEdit(); if (e.key === 'Escape') cancelEdit() }} />
                                             </div>
                                             <div className="flex gap-2">
-                                              <Button size="sm" onClick={saveEdit} disabled={!canSave} className={`flex-1 border-0 ${canSave ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-gray-300 text-gray-500 hover:bg-gray-300'}`}><Check className="size-4 mr-1" /> Save</Button>
-                                              <Button size="sm" onClick={cancelEdit} className="flex-1 border-0 bg-red-600 text-white hover:bg-red-700"><X className="size-4 mr-1" /> Cancel</Button>
+                                              <Button size="sm" onClick={saveEdit} disabled={!canSave} className={`flex-1 !border-0 !bg-transparent shadow-none hover:!bg-transparent ${canSave ? 'text-green-600 hover:text-green-700' : 'text-muted-foreground/50'}`}><Check className="size-4 mr-1" /> Save</Button>
+                                              <Button size="sm" onClick={cancelEdit} className="flex-1 !border-0 !bg-transparent text-red-600 shadow-none hover:!bg-transparent hover:text-red-700"><X className="size-4 mr-1" /> Cancel</Button>
                                             </div>
                                           </div>
                                         </PopoverContent>
@@ -2048,7 +2050,7 @@ export function RouteList() {
                                               <span className={pendingCellEdits.has(`${point.code}-latitude`) ? 'text-amber-600 dark:text-amber-400 font-semibold' : ''}>{point.latitude.toFixed(4)}</span><Edit2 className="size-3 opacity-0 group-hover:opacity-50 transition-opacity" />
                                             </button>
                                           </PopoverTrigger>
-                                          <PopoverContent className="w-64"><div className="space-y-3"><div className="space-y-2"><label className="text-sm font-medium">Latitude</label><Input className="h-8 text-[11px] md:text-[11px] font-semibold leading-none text-center font-mono" type="number" step="0.0001" value={editValue} onChange={(e) => setEditValue(e.target.value)} placeholder="Enter latitude" autoFocus onKeyDown={(e) => { if (e.key === 'Enter') saveEdit(); if (e.key === 'Escape') cancelEdit() }} /></div><div className="flex gap-2"><Button size="sm" onClick={saveEdit} disabled={!canSave} className={`flex-1 border-0 ${canSave ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-gray-300 text-gray-500 hover:bg-gray-300'}`}><Check className="size-4 mr-1" /> Save</Button><Button size="sm" onClick={cancelEdit} className="flex-1 border-0 bg-red-600 text-white hover:bg-red-700"><X className="size-4 mr-1" /> Cancel</Button></div></div></PopoverContent>
+                                          <PopoverContent className="w-64"><div className="space-y-3"><div className="space-y-2"><label className="text-sm font-medium">Latitude</label><Input className="h-8 text-[11px] md:text-[11px] font-semibold leading-none text-center font-mono" type="number" step="0.0001" value={editValue} onChange={(e) => setEditValue(e.target.value)} placeholder="Enter latitude" autoFocus onKeyDown={(e) => { if (e.key === 'Enter') saveEdit(); if (e.key === 'Escape') cancelEdit() }} /></div><div className="flex gap-2"><Button size="sm" onClick={saveEdit} disabled={!canSave} className={`flex-1 !border-0 !bg-transparent shadow-none hover:!bg-transparent ${canSave ? 'text-green-600 hover:text-green-700' : 'text-muted-foreground/50'}`}><Check className="size-4 mr-1" /> Save</Button><Button size="sm" onClick={cancelEdit} className="flex-1 !border-0 !bg-transparent text-red-600 shadow-none hover:!bg-transparent hover:text-red-700"><X className="size-4 mr-1" /> Cancel</Button></div></div></PopoverContent>
                                         </Popover>
                                       </td>
                                     )
@@ -2065,7 +2067,7 @@ export function RouteList() {
                                               <span className={pendingCellEdits.has(`${point.code}-longitude`) ? 'text-amber-600 dark:text-amber-400 font-semibold' : ''}>{point.longitude.toFixed(4)}</span><Edit2 className="size-3 opacity-0 group-hover:opacity-50 transition-opacity" />
                                             </button>
                                           </PopoverTrigger>
-                                          <PopoverContent className="w-64"><div className="space-y-3"><div className="space-y-2"><label className="text-sm font-medium">Longitude</label><Input className="h-8 text-[11px] md:text-[11px] font-semibold leading-none text-center font-mono" type="number" step="0.0001" value={editValue} onChange={(e) => setEditValue(e.target.value)} placeholder="Enter longitude" autoFocus onKeyDown={(e) => { if (e.key === 'Enter') saveEdit(); if (e.key === 'Escape') cancelEdit() }} /></div><div className="flex gap-2"><Button size="sm" onClick={saveEdit} disabled={!canSave} className={`flex-1 border-0 ${canSave ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-gray-300 text-gray-500 hover:bg-gray-300'}`}><Check className="size-4 mr-1" /> Save</Button><Button size="sm" onClick={cancelEdit} className="flex-1 border-0 bg-red-600 text-white hover:bg-red-700"><X className="size-4 mr-1" /> Cancel</Button></div></div></PopoverContent>
+                                          <PopoverContent className="w-64"><div className="space-y-3"><div className="space-y-2"><label className="text-sm font-medium">Longitude</label><Input className="h-8 text-[11px] md:text-[11px] font-semibold leading-none text-center font-mono" type="number" step="0.0001" value={editValue} onChange={(e) => setEditValue(e.target.value)} placeholder="Enter longitude" autoFocus onKeyDown={(e) => { if (e.key === 'Enter') saveEdit(); if (e.key === 'Escape') cancelEdit() }} /></div><div className="flex gap-2"><Button size="sm" onClick={saveEdit} disabled={!canSave} className={`flex-1 !border-0 !bg-transparent shadow-none hover:!bg-transparent ${canSave ? 'text-green-600 hover:text-green-700' : 'text-muted-foreground/50'}`}><Check className="size-4 mr-1" /> Save</Button><Button size="sm" onClick={cancelEdit} className="flex-1 !border-0 !bg-transparent text-red-600 shadow-none hover:!bg-transparent hover:text-red-700"><X className="size-4 mr-1" /> Cancel</Button></div></div></PopoverContent>
                                         </Popover>
                                       </td>
                                     )

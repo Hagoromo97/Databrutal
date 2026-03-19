@@ -576,15 +576,9 @@ export function Rooster({ viewMode: viewModeProp = "week" }: { viewMode?: ViewMo
                         <div className="flex items-center gap-0.5 mt-2">
                           <button
                             onClick={e => { e.stopPropagation(); openEditResource(resource) }}
-                            className="h-5 px-1.5 flex items-center gap-1 rounded text-[9px] font-medium bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
+                            className="h-5 px-1.5 flex items-center gap-1 rounded border-0 bg-transparent text-[9px] font-medium text-red-600 hover:bg-transparent hover:text-red-700 transition-colors"
                           >
                             <Pencil className="size-2.5" />Edit
-                          </button>
-                          <button
-                            onClick={e => { e.stopPropagation(); deleteResource(resource.id) }}
-                            className="h-5 w-5 flex items-center justify-center rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors ml-0.5"
-                          >
-                            <Trash2 className="size-2.5" />
                           </button>
                         </div>
                       )}

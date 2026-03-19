@@ -52,8 +52,8 @@ function createMarkerEl(color: string): HTMLElement {
 
   // Standard map-pin SVG (like Google Maps default)
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
-  svg.setAttribute("width", "28")
-  svg.setAttribute("height", "36")
+  svg.setAttribute("width", "22")
+  svg.setAttribute("height", "30")
   svg.setAttribute("viewBox", "0 0 28 36")
 
   const pinPath = document.createElementNS("http://www.w3.org/2000/svg", "path")
@@ -141,7 +141,7 @@ export function DeliveryMap({ deliveryPoints, scrollZoom = false }: DeliveryMapP
   useEffect(() => {
     markersRef.current.forEach(({ el, code, color, index }) => {
       const isActive = code === activeCode
-      el.style.transform = isActive ? "scale(1.3)" : "scale(1)"
+      el.style.transform = isActive ? "scale(1.15)" : "scale(1)"
       el.style.filter    = isActive
         ? `drop-shadow(0 4px 12px ${color}88)`
         : ""
@@ -184,7 +184,7 @@ export function DeliveryMap({ deliveryPoints, scrollZoom = false }: DeliveryMapP
         <InfoWindow
           position={{ lat: activePoint.latitude, lng: activePoint.longitude }}
           onCloseClick={() => setActiveCode(null)}
-          options={{ pixelOffset: new google.maps.Size(0, -46) }}
+          options={{ pixelOffset: new google.maps.Size(0, -38) }}
         >
           <div style={{ fontFamily: "system-ui, sans-serif", minWidth: 148, padding: "2px 0" }}>
             <p style={{ fontWeight: 700, fontSize: 13, marginBottom: 5, color: "#111", lineHeight: 1.3 }}>{activePoint.name}</p>
