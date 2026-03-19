@@ -1,8 +1,8 @@
 import { useMemo, useState, useEffect, useRef } from "react"
-import { GoogleMap, useLoadScript, InfoWindow } from "@react-google-maps/api"
+import { GoogleMap, useLoadScript, InfoWindow, type Libraries } from "@react-google-maps/api"
 
 const GMAP_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY ?? ""
-const LIBRARIES = ["marker"] as const
+const LIBRARIES: Libraries = ["marker"]
 
 const DELIVERY_COLORS: Record<string, string> = {
   Daily:   "#22c55e",
