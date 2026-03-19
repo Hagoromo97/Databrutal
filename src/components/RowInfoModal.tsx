@@ -226,7 +226,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, onSave }: 
       <Dialog open={open} onOpenChange={(o) => { if (!o) { setPendingUrl(null); setPendingUrlLabel("") } onOpenChange(o) }}>
       <DialogContent
         onInteractOutside={handleDialogInteractOutside}
-        className="flex max-h-[min(72vh,28rem)] w-[85vw] max-w-[16rem] flex-col gap-0 overflow-hidden rounded-xl p-0 md:max-w-xs"
+        className="flex max-h-[min(78vh,34rem)] w-[90vw] max-w-[20rem] flex-col gap-0 overflow-hidden rounded-xl p-0 md:max-w-sm"
       >
         {/* Header */}
         <DialogHeader className="shrink-0 border-b border-border px-4 pt-4 pb-3 text-left md:px-5 md:pt-5 md:pb-4">
@@ -291,7 +291,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, onSave }: 
           {/* Information section */}
           <div>
             <div className="flex items-center justify-between mb-2.5">
-              <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Information</p>
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Information</p>
               {isEditMode && !isEditing && (
                 <button
                   onClick={() => setIsEditing(true)}
@@ -360,7 +360,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, onSave }: 
           {/* Navigation buttons */}
           {!isEditing && (
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">Open With</p>
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">Open With</p>
               <div className="flex flex-col gap-1.5">
 
                 {/* Google Maps row */}
@@ -382,11 +382,11 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, onSave }: 
                             <img src="/Gmaps.png" alt="Google Maps" className="w-7 h-7 rounded-lg object-cover shrink-0" />
                             <div className="min-w-0">
                               <p className="text-xs font-semibold text-foreground leading-tight truncate">Open Google Maps?</p>
-                              <p className="text-[10px] text-muted-foreground mt-0.5">Will leave this app</p>
+                              <p className="text-[9px] text-muted-foreground mt-0.5">Will leave this app</p>
                             </div>
                           </button>
                           <div className="flex items-center shrink-0">
-                            <button onClick={confirmOpen} className="h-7 px-3 text-[11px] font-bold transition-colors active:scale-95 flex items-center gap-1" style={{ color: '#4285F4' }}><ExternalLink className="w-3 h-3" />Go</button>
+                            <button onClick={confirmOpen} aria-label="Open Google Maps URL" className="h-8 w-8 rounded-full transition-colors active:scale-95 flex items-center justify-center" style={{ color: '#4285F4' }}><ExternalLink className="w-4 h-4" /></button>
                           </div>
                         </div>
                       </div>
@@ -413,11 +413,11 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, onSave }: 
                             <img src="/waze.png" alt="Waze" className="w-7 h-7 rounded-lg object-cover shrink-0" />
                             <div className="min-w-0">
                               <p className="text-xs font-semibold text-foreground leading-tight truncate">Open Waze?</p>
-                              <p className="text-[10px] text-muted-foreground mt-0.5">Will leave this app</p>
+                              <p className="text-[9px] text-muted-foreground mt-0.5">Will leave this app</p>
                             </div>
                           </button>
                           <div className="flex items-center shrink-0">
-                            <button onClick={confirmOpen} className="h-7 px-3 text-[11px] font-bold transition-colors active:scale-95 flex items-center gap-1" style={{ color: '#05C8F0' }}><ExternalLink className="w-3 h-3" />Go</button>
+                            <button onClick={confirmOpen} aria-label="Open Waze URL" className="h-8 w-8 rounded-full transition-colors active:scale-95 flex items-center justify-center" style={{ color: '#05C8F0' }}><ExternalLink className="w-4 h-4" /></button>
                           </div>
                         </div>
                       </div>
@@ -443,11 +443,11 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, onSave }: 
                           <img src="/FamilyMart.png" alt="FamilyMart" className="w-7 h-7 rounded-lg object-cover shrink-0" />
                           <div className="min-w-0">
                             <p className="text-xs font-semibold text-foreground leading-tight truncate">Open FamilyMart?</p>
-                            <p className="text-[10px] text-muted-foreground mt-0.5">Will leave this app</p>
+                            <p className="text-[9px] text-muted-foreground mt-0.5">Will leave this app</p>
                           </div>
                         </button>
                         <div className="flex items-center shrink-0">
-                          <button onClick={confirmOpen} className="h-7 px-3 text-[11px] font-bold transition-colors active:scale-95 flex items-center gap-1" style={{ color: '#007140' }}><ExternalLink className="w-3 h-3" />Go</button>
+                          <button onClick={confirmOpen} aria-label="Open FamilyMart URL" className="h-8 w-8 rounded-full transition-colors active:scale-95 flex items-center justify-center" style={{ color: '#007140' }}><ExternalLink className="w-4 h-4" /></button>
                         </div>
                       </div>
                     </div>
@@ -473,11 +473,11 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, onSave }: 
                             <QrCode className="w-7 h-7 text-orange-500 shrink-0 p-1" />
                             <div className="min-w-0">
                               <p className="text-xs font-semibold text-foreground leading-tight truncate">Open QR Code?</p>
-                              <p className="text-[10px] text-muted-foreground mt-0.5">Will leave this app</p>
+                              <p className="text-[9px] text-muted-foreground mt-0.5">Will leave this app</p>
                             </div>
                           </button>
                           <div className="flex items-center shrink-0">
-                            <button onClick={confirmOpen} className="h-7 px-3 text-[11px] font-bold transition-colors active:scale-95 flex items-center gap-1" style={{ color: '#f97316' }}><ExternalLink className="w-3 h-3" />Go</button>
+                            <button onClick={confirmOpen} aria-label="Open QR Code URL" className="h-8 w-8 rounded-full transition-colors active:scale-95 flex items-center justify-center" style={{ color: '#f97316' }}><ExternalLink className="w-4 h-4" /></button>
                           </div>
                         </div>
                       </div>
@@ -882,7 +882,14 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, onSave }: 
               <Button size="sm" onClick={handleSave}><Check className="size-3.5 mr-1" />Save</Button>
             </>
           ) : (
-            <Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>Close</Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-auto px-0 py-0 text-xs text-red-600 hover:bg-transparent hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+              onClick={() => onOpenChange(false)}
+            >
+              Close
+            </Button>
           )}
         </DialogFooter>
       </DialogContent>

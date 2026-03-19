@@ -1376,6 +1376,7 @@ export function RouteList() {
                         <span style={{ fontSize: cardFontSm, fontWeight: 700, color: 'hsl(var(--muted-foreground))' }}>{route.code}</span>
                         <span style={{ fontSize: cardFontSm, fontWeight: 800, color: route.shift === 'AM' ? '#16a34a' : route.shift === 'PM' ? '#c2410c' : 'hsl(var(--muted-foreground))' }}>{route.shift}</span>
                       </div>
+                      <div style={{ height: 1, marginTop: '0.44rem', background: `linear-gradient(90deg, transparent, ${markerColor}55, transparent)` }} />
                       {/* Pin (left) + stops (right) — bottom row */}
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: `${(1.2 * Math.min(1, cardW / 340)).toFixed(2)}rem` }}>
                         <button
@@ -1408,8 +1409,7 @@ export function RouteList() {
                       </div>
                     </div>
 
-                    {/* Bottom separator */}
-                    <div style={{ position: 'absolute', bottom: 0, left: cardPad, right: cardPad, height: 1, background: `linear-gradient(90deg, transparent, ${markerColor}30, transparent)` }} />
+                    {/* Header separator moved above pin/stops */}
                   </div>
 
                   {/* ── Body ── */}
@@ -1541,18 +1541,18 @@ export function RouteList() {
                   </div>{/* end Body */}
 
                   {/* Footer */}
-                  <div style={{ padding: `${rowGap} ${cardPad} ${cardPadV}`, display: 'flex', gap: '0.45rem' }}>
+                  <div style={{ padding: `${rowGap} ${cardPad} ${cardPadV}`, display: 'flex', gap: '0.45rem', borderTop: `1px solid ${markerColor}55` }}>
                     {isEditMode && (
                       <button onClick={() => setCardPanels(prev => ({ ...prev, [route.id]: { info: false, edit: true } }))} style={{ flex: 1, borderRadius: 11, fontSize: btnFs, fontWeight: 700, padding: `${btnPad} 0`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', background: markerColor, color: '#fff', border: 'none', cursor: 'pointer', boxShadow: `0 3px 10px ${markerColor}44` }}>
                         <Edit2 style={{ width: iconSz * 0.6, height: iconSz * 0.6 }} /> Edit
                       </button>
                     )}
-                    <button onClick={() => setCardPanels(prev => ({ ...prev, [route.id]: { edit: false, info: true } }))} style={{ flex: 1, borderRadius: 11, fontSize: btnFs, fontWeight: 700, padding: `${btnPad} 0`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', background: markerColor, color: '#fff', border: 'none', cursor: 'pointer', boxShadow: `0 3px 10px ${markerColor}44` }}>
+                    <button onClick={() => setCardPanels(prev => ({ ...prev, [route.id]: { edit: false, info: true } }))} style={{ flex: 1, borderRadius: 11, fontSize: btnFs, fontWeight: 700, padding: `${btnPad} 0`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', background: markerColor, color: '#fff', border: 'none', cursor: 'pointer', boxShadow: `0 2px 6px ${markerColor}2e` }}>
                       <History style={{ width: iconSz * 0.6, height: iconSz * 0.6 }} /> Log
                     </button>
                     <button
                       onClick={() => { setCurrentRouteId(route.id); setDetailDialogOpen(true) }}
-                      style={{ flex: 1, borderRadius: 11, fontSize: btnFs, fontWeight: 800, padding: `${btnPad} 0`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', background: `linear-gradient(135deg, ${markerColor} 0%, ${markerColor}cc 100%)`, color: '#fff', border: 'none', cursor: 'pointer', boxShadow: `0 4px 14px ${markerColor}44`, letterSpacing: '0.02em' }}
+                      style={{ flex: 1, borderRadius: 11, fontSize: btnFs, fontWeight: 800, padding: `${btnPad} 0`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', background: `linear-gradient(135deg, ${markerColor} 0%, ${markerColor}cc 100%)`, color: '#fff', border: 'none', cursor: 'pointer', boxShadow: `0 2px 7px ${markerColor}30`, letterSpacing: '0.02em' }}
                     >
                       <List style={{ width: iconSz * 0.65, height: iconSz * 0.65 }} /> View
                     </button>
