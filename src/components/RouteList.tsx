@@ -51,6 +51,34 @@ async function appendChangelog(routeId: string, description: string): Promise<vo
   }
 }
 
+const formatRowCode = (code: string) => `[ ${code} ]`
+
+const formatRouteLabel = (routeName: string) => `Route ${routeName}`
+
+const sortByCode = <T extends { code: string }>(items: T[]): T[] => (
+  [...items].sort((left, right) => left.code.localeCompare(right.code, undefined, { numeric: true, sensitivity: "base" }))
+)
+
+const normalizeDescriptions = (descriptions?: { key: string; value: string }[]) => (
+  (descriptions ?? [])
+    .filter(item => item.key.trim() !== "")
+    .map(item => ({ key: item.key.trim(), value: item.value.trim() }))
+    .sort((left, right) => left.key.localeCompare(right.key, undefined, { sensitivity: "base" }))
+)
+
+const getPointImageUrls = (point: DeliveryPoint): string[] => {
+  const avatarUrls = point.avatarImages?.length
+    ? point.avatarImages
+    : point.avatarImageUrl
+      ? [point.avatarImageUrl]
+      : []
+
+  const urls = [...avatarUrls, point.qrCodeImageUrl].filter((url): url is string => Boolean(url))
+  return urls.filter((url, index) => urls.indexOf(url) === index)
+}
+
+const getPointImageCount = (point: DeliveryPoint) => getPointImageUrls(point).length
+
 interface DeliveryPoint {
   code: string
   name: string
@@ -241,6 +269,28 @@ const DELIVERY_ITEMS = [
   { value: 'Weekday 3', label: 'Weekday 3', description: 'Sun, Tue & Fri only',          bg: 'bg-indigo-100 dark:bg-indigo-900/40',  text: 'text-indigo-700 dark:text-indigo-300',  dot: '#6366f1' },
 ] as const
 const DELIVERY_MAP = new Map<string, typeof DELIVERY_ITEMS[number]>(DELIVERY_ITEMS.map(d => [d.value, d]))
+const AUTO_DELIVERY_LABELS = DELIVERY_ITEMS.map(d => d.value)
+const AUTO_DELIVERY_LABEL_SET = new Set<string>(AUTO_DELIVERY_LABELS)
+
+const toCustomLabels = (labels?: string[]) => {
+  if (!labels) return []
+  return labels.filter(lbl => !AUTO_DELIVERY_LABEL_SET.has(lbl))
+}
+
+const getAutoDeliveryLabelsFromRoute = (route: Route): string[] => {
+  const labels = route.deliveryPoints
+    .map(point => point.delivery)
+    .filter((label, idx, arr) => arr.indexOf(label) === idx)
+    .filter(label => AUTO_DELIVERY_LABEL_SET.has(label))
+  return labels.length > 0 ? labels : AUTO_DELIVERY_LABELS
+}
+
+const getAvailableDeliveryLabels = (route?: Route): string[] => {
+  if (!route) return AUTO_DELIVERY_LABELS
+  const custom = toCustomLabels(route.labels)
+  const merged = [...AUTO_DELIVERY_LABELS, ...custom]
+  return merged.filter((label, idx) => merged.indexOf(label) === idx)
+}
 
 // ── Route card color palette (from Settings → Route Colours, stored in localStorage) ──
 const DEFAULT_ROUTE_COLORS = ['#374151', '#7c3aed', '#0891b2', '#16a34a', '#dc2626', '#d97706']
@@ -914,6 +964,17 @@ export function RouteList() {
     })
     const data = await res.json()
     if (!data.success) throw new Error(data.error || 'Save failed')
+
+    type ChangelogEntry = { text: string; sortKey: string }
+    const buildRowEntry = (code: string, text: string): ChangelogEntry => ({
+      text,
+      sortKey: code,
+    })
+
+    const sortEntries = (entries: ChangelogEntry[]) => (
+      [...entries].sort((left, right) => left.sortKey.localeCompare(right.sortKey, undefined, { numeric: true, sensitivity: 'base' }))
+    )
+
     // Record changelog entries per changed route
     // First pass: detect cross-route moves
     type MoveInfo = { code: string; name: string; fromId: string; fromName: string; toId: string; toName: string }
@@ -941,86 +1002,113 @@ export function RouteList() {
 
     routes.forEach(route => {
       const old = before.find(r => r.id === route.id)
-      const changes: string[] = []
+      const routeChanges: string[] = []
+      const rowChanges: ChangelogEntry[] = []
       if (!old) {
-        changes.push(`Route "${route.name}" created`)
+        routeChanges.push(`${formatRouteLabel(route.name)} created`)
       } else {
         // ── Route-level metadata changes ──────────────────────────────
-        if (old.name !== route.name)   changes.push(`Name changed: "${old.name}" → "${route.name}"`)
-        if (old.code !== route.code)   changes.push(`Code changed: ${old.code} → ${route.code}`)
-        if (old.shift !== route.shift) changes.push(`Shift changed: ${old.shift} → ${route.shift}`)
+        if (old.name !== route.name)   routeChanges.push(`Route name changed from "${old.name}" to "${route.name}"`)
+        if (old.code !== route.code)   routeChanges.push(`Route code changed from ${old.code} to ${route.code}`)
+        if (old.shift !== route.shift) routeChanges.push(`Route shift changed from ${old.shift} to ${route.shift}`)
         if ((old.color ?? '') !== (route.color ?? ''))
-          changes.push(`Color changed: ${old.color ?? 'none'} → ${route.color ?? 'none'}`)
+          routeChanges.push(`Route color changed from ${old.color ?? 'none'} to ${route.color ?? 'none'}`)
 
         // Labels
-        const oldLabels = (old.labels ?? []).slice().sort()
-        const newLabels = (route.labels ?? []).slice().sort()
+        const oldLabels = toCustomLabels(old.labels).slice().sort()
+        const newLabels = toCustomLabels(route.labels).slice().sort()
         if (JSON.stringify(oldLabels) !== JSON.stringify(newLabels)) {
           const addedL  = newLabels.filter(l => !oldLabels.includes(l))
           const removedL = oldLabels.filter(l => !newLabels.includes(l))
-          if (addedL.length)   changes.push(`Labels added: ${addedL.join(", ")}`)
-          if (removedL.length) changes.push(`Labels removed: ${removedL.join(", ")}`)
+          if (addedL.length)   routeChanges.push(`Custom badges added: ${addedL.join(", ")}`)
+          if (removedL.length) routeChanges.push(`Custom badges removed: ${removedL.join(", ")}`)
         }
 
         // ── Cross-route moves ─────────────────────────────────────────
-        // Moves OUT from this route
-        const movedOut = moves.filter(m => m.fromId === route.id)
-        const movedOutByDest: Record<string, MoveInfo[]> = {}
-        movedOut.forEach(m => { if (!movedOutByDest[m.toId]) movedOutByDest[m.toId] = []; movedOutByDest[m.toId].push(m) })
-        Object.values(movedOutByDest).forEach(group => {
-          const names = group.map(m => m.name).join(", ")
-          changes.push(`Moved ${group.length} location${group.length > 1 ? 's' : ''} to "${group[0].toName}": ${names}`)
+        sortByCode(moves.filter(m => m.fromId === route.id)).forEach(move => {
+          rowChanges.push(buildRowEntry(move.code, `${formatRowCode(move.code)} moved to ${formatRouteLabel(move.toName)}`))
         })
 
-        // Moves INTO this route
-        const movedIn = moves.filter(m => m.toId === route.id)
-        const movedInBySource: Record<string, MoveInfo[]> = {}
-        movedIn.forEach(m => { if (!movedInBySource[m.fromId]) movedInBySource[m.fromId] = []; movedInBySource[m.fromId].push(m) })
-        Object.values(movedInBySource).forEach(group => {
-          const names = group.map(m => m.name).join(", ")
-          changes.push(`Received ${group.length} location${group.length > 1 ? 's' : ''} from "${group[0].fromName}": ${names}`)
+        sortByCode(moves.filter(m => m.toId === route.id)).forEach(move => {
+          rowChanges.push(buildRowEntry(move.code, `${formatRowCode(move.code)} moved from ${formatRouteLabel(move.fromName)} to ${formatRouteLabel(move.toName)}`))
         })
 
         // ── Per-point add / remove / edit ─────────────────────────────
-        const addedPts   = route.deliveryPoints.filter(p => !old.deliveryPoints.find(o => o.code === p.code) && !movedCodes.has(p.code))
-        const removedPts = old.deliveryPoints.filter(o => !route.deliveryPoints.find(p => p.code === o.code) && !movedCodes.has(o.code))
-        const editedPts  = route.deliveryPoints.filter(p => {
+        const addedPts   = sortByCode(route.deliveryPoints.filter(p => !old.deliveryPoints.find(o => o.code === p.code) && !movedCodes.has(p.code)))
+        const removedPts = sortByCode(old.deliveryPoints.filter(o => !route.deliveryPoints.find(p => p.code === o.code) && !movedCodes.has(o.code)))
+        const editedPts  = sortByCode(route.deliveryPoints.filter(p => {
           const o = old.deliveryPoints.find(x => x.code === p.code)
           if (!o) return false
-          const descChanged = JSON.stringify((o.descriptions ?? []).slice().sort((a,b) => a.key.localeCompare(b.key)))
-                           !== JSON.stringify((p.descriptions ?? []).slice().sort((a,b) => a.key.localeCompare(b.key)))
+          const descChanged = JSON.stringify(normalizeDescriptions(o.descriptions))
+                           !== JSON.stringify(normalizeDescriptions(p.descriptions))
+          const imageChanged = JSON.stringify(getPointImageUrls(o)) !== JSON.stringify(getPointImageUrls(p))
           return o.name !== p.name || o.delivery !== p.delivery ||
-                 o.latitude !== p.latitude || o.longitude !== p.longitude || descChanged
+                 o.latitude !== p.latitude || o.longitude !== p.longitude || descChanged || imageChanged ||
+                 (o.qrCodeDestinationUrl ?? '') !== (p.qrCodeDestinationUrl ?? '')
+        }))
+
+        addedPts.forEach(point => {
+          const extras: string[] = []
+          const imageCount = getPointImageCount(point)
+          const infoFieldCount = normalizeDescriptions(point.descriptions).length
+          if (imageCount > 0) extras.push(`with ${imageCount} image${imageCount !== 1 ? 's' : ''}`)
+          if (infoFieldCount > 0) extras.push(`with ${infoFieldCount} info field${infoFieldCount !== 1 ? 's' : ''}`)
+          rowChanges.push(buildRowEntry(
+            point.code,
+            `${formatRowCode(point.code)} added${extras.length ? ` ${extras.join(' and ')}` : ''}`
+          ))
         })
 
-        // Added / Removed — grouped summary
-        if (addedPts.length)
-          changes.push(`Added ${addedPts.length} location${addedPts.length > 1 ? 's' : ''}: ${addedPts.map(p => p.name || p.code).join(", ")}`)
-        if (removedPts.length)
-          changes.push(`Removed ${removedPts.length} location${removedPts.length > 1 ? 's' : ''}: ${removedPts.map(p => p.name || p.code).join(", ")}`)
+        removedPts.forEach(point => {
+          rowChanges.push(buildRowEntry(point.code, `${formatRowCode(point.code)} removed from ${formatRouteLabel(route.name)}`))
+        })
 
         // Edited — per-field detail for each point
         editedPts.forEach(p => {
           const o = old.deliveryPoints.find(x => x.code === p.code)!
+          const oldDescriptions = normalizeDescriptions(o.descriptions)
+          const newDescriptions = normalizeDescriptions(p.descriptions)
+          const oldImageCount = getPointImageCount(o)
+          const newImageCount = getPointImageCount(p)
+
           if (o.name !== p.name)
-            changes.push(`[${p.code}] Name: "${o.name}" → "${p.name}"`)
+            rowChanges.push(buildRowEntry(p.code, `${formatRowCode(p.code)} renamed from "${o.name}" to "${p.name}"`))
           if (o.delivery !== p.delivery)
-            changes.push(`[${p.code}] Delivery: ${o.delivery} → ${p.delivery}`)
+            rowChanges.push(buildRowEntry(p.code, `${formatRowCode(p.code)} changed ${o.delivery} to ${p.delivery}`))
           if (o.latitude !== p.latitude || o.longitude !== p.longitude)
-            changes.push(`[${p.code}] Coordinates updated (${o.latitude.toFixed(5)},${o.longitude.toFixed(5)} → ${p.latitude.toFixed(5)},${p.longitude.toFixed(5)})`)
-          const oldDescs = JSON.stringify((o.descriptions ?? []).slice().sort((a,b) => a.key.localeCompare(b.key)))
-          const newDescs = JSON.stringify((p.descriptions ?? []).slice().sort((a,b) => a.key.localeCompare(b.key)))
-          if (oldDescs !== newDescs)
-            changes.push(`[${p.code}] Description fields updated`)
+            rowChanges.push(buildRowEntry(p.code, `${formatRowCode(p.code)} updated coordinates`))
+
+          if (newImageCount > oldImageCount)
+            rowChanges.push(buildRowEntry(p.code, `${formatRowCode(p.code)} added ${newImageCount - oldImageCount} image${newImageCount - oldImageCount !== 1 ? 's' : ''}`))
+          else if (newImageCount < oldImageCount)
+            rowChanges.push(buildRowEntry(p.code, `${formatRowCode(p.code)} removed ${oldImageCount - newImageCount} image${oldImageCount - newImageCount !== 1 ? 's' : ''}`))
+          else if (JSON.stringify(getPointImageUrls(o)) !== JSON.stringify(getPointImageUrls(p)) && newImageCount > 0)
+            rowChanges.push(buildRowEntry(p.code, `${formatRowCode(p.code)} updated image set`))
+
+          if (newDescriptions.length > oldDescriptions.length)
+            rowChanges.push(buildRowEntry(p.code, `${formatRowCode(p.code)} added ${newDescriptions.length - oldDescriptions.length} info field${newDescriptions.length - oldDescriptions.length !== 1 ? 's' : ''}`))
+          else if (newDescriptions.length < oldDescriptions.length)
+            rowChanges.push(buildRowEntry(p.code, `${formatRowCode(p.code)} removed ${oldDescriptions.length - newDescriptions.length} info field${oldDescriptions.length - newDescriptions.length !== 1 ? 's' : ''}`))
+          else if (JSON.stringify(oldDescriptions) !== JSON.stringify(newDescriptions) && newDescriptions.length > 0)
+            rowChanges.push(buildRowEntry(p.code, `${formatRowCode(p.code)} updated info fields`))
+
+          if ((o.qrCodeDestinationUrl ?? '') !== (p.qrCodeDestinationUrl ?? ''))
+            rowChanges.push(buildRowEntry(p.code, `${formatRowCode(p.code)} updated QR destination`))
         })
 
         // ── Reorder detection ────────────────────────────────────────
         const commonOldOrder = old.deliveryPoints.filter(o => route.deliveryPoints.find(p => p.code === o.code) && !movedCodes.has(o.code)).map(o => o.code)
         const commonNewOrder = route.deliveryPoints.filter(p => old.deliveryPoints.find(o => o.code === p.code) && !movedCodes.has(p.code)).map(p => p.code)
         if (commonOldOrder.join(',') !== commonNewOrder.join(','))
-          changes.push(`Location order changed (${commonNewOrder.length} location${commonNewOrder.length !== 1 ? 's' : ''} reordered)`)
+          routeChanges.push(`Row order updated by Code (${commonNewOrder.length} row${commonNewOrder.length !== 1 ? 's' : ''})`)
       }
-      changes.forEach(desc => { appendChangelog(route.id, desc) })
+
+      const orderedChanges = [
+        ...routeChanges,
+        ...sortEntries(rowChanges).map(entry => entry.text),
+      ]
+
+      orderedChanges.forEach(desc => { appendChangelog(route.id, desc) })
     })
     // Clear pending-edit markers once successfully persisted
     setPendingCellEdits(new Set())
@@ -1262,7 +1350,9 @@ export function RouteList() {
         {displayedRoutes.map((route, routeIndex) => {
           const markerColor = route.color || routeColorPalette[routeIndex % routeColorPalette.length]
           const cardPanel = getCardPanel(route.id)
-          const ep = editPanelState[route.id] ?? { name: route.name, code: route.code, shift: route.shift, color: route.color || markerColor, labels: route.labels ?? ['Daily', 'Weekday', 'Alt 1', 'Alt 2'] }
+          const autoLabels = getAutoDeliveryLabelsFromRoute(route)
+          const savedCustomLabels = toCustomLabels(route.labels)
+          const ep = editPanelState[route.id] ?? { name: route.name, code: route.code, shift: route.shift, color: route.color || markerColor, labels: savedCustomLabels }
           return (
           <div key={route.id} style={{ display: 'flex', justifyContent: 'center' }}>
             {/* ── Route Card ── */}
@@ -1586,7 +1676,18 @@ export function RouteList() {
                     </div>
                     {/* Labels manager */}
                     <div>
-                      <label style={{ fontSize: editLabelFs, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'hsl(var(--muted-foreground))', display: 'flex', alignItems: 'center', gap: 4, marginBottom: '0.4rem' }}>Labels</label>
+                      <label style={{ fontSize: editLabelFs, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'hsl(var(--muted-foreground))', display: 'flex', alignItems: 'center', gap: 4, marginBottom: '0.4rem' }}>Delivery Type (Auto)</label>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.32rem', marginBottom: '0.55rem', minHeight: 24 }}>
+                        {autoLabels.map((lbl) => {
+                          return (
+                            <span key={lbl} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: `${ep.color}14`, color: ep.color, fontSize: editChipFs, fontWeight: 700, padding: '2px 10px 2px 11px', borderRadius: '999px', border: `1px solid ${ep.color}40` }}>
+                              {lbl}
+                            </span>
+                          )
+                        })}
+                      </div>
+
+                      <label style={{ fontSize: editLabelFs, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'hsl(var(--muted-foreground))', display: 'flex', alignItems: 'center', gap: 4, marginBottom: '0.4rem' }}>Custom Badges</label>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.32rem', marginBottom: '0.45rem', minHeight: 24 }}>
                         {ep.labels.map((lbl) => {
                           return (
@@ -1605,13 +1706,13 @@ export function RouteList() {
                             if (e.key === 'Enter' || e.key === ',') {
                               e.preventDefault()
                               const val = (editLabelInput[route.id] ?? '').trim()
-                              if (val && !ep.labels.includes(val)) {
+                              if (val && !AUTO_DELIVERY_LABEL_SET.has(val) && !ep.labels.includes(val)) {
                                 setEditPanelState(prev => ({ ...prev, [route.id]: { ...ep, labels: [...ep.labels, val] } }))
                                 setEditLabelInput(prev => ({ ...prev, [route.id]: '' }))
                               }
                             }
                           }}
-                          placeholder="New label, press Enter"
+                          placeholder="New custom badge, press Enter"
                           style={{ flex: 1, padding: '0.38rem 0.65rem', borderRadius: 7, border: '1.5px solid hsl(var(--border))', fontSize: editLabelFs, color: 'hsl(var(--foreground))', background: 'hsl(var(--background))', outline: 'none', boxSizing: 'border-box' }}
                           onFocus={e => e.target.style.borderColor = markerColor}
                           onBlur={e => e.target.style.borderColor = 'hsl(var(--border))'}
@@ -1619,7 +1720,7 @@ export function RouteList() {
                         <button
                           onClick={() => {
                             const val = (editLabelInput[route.id] ?? '').trim()
-                            if (val && !ep.labels.includes(val)) {
+                            if (val && !AUTO_DELIVERY_LABEL_SET.has(val) && !ep.labels.includes(val)) {
                               setEditPanelState(prev => ({ ...prev, [route.id]: { ...ep, labels: [...ep.labels, val] } }))
                               setEditLabelInput(prev => ({ ...prev, [route.id]: '' }))
                             }
@@ -1638,7 +1739,7 @@ export function RouteList() {
                       <X style={{ width: 12, height: 12 }} /> Cancel
                     </button>
                     {(() => {
-                      const hasEditChanges = ep.name !== route.name || ep.code !== route.code || ep.shift !== route.shift || ep.labels.join(',') !== (route.labels ?? ['Daily', 'Weekday', 'Alt 1', 'Alt 2']).join(',')
+                      const hasEditChanges = ep.name !== route.name || ep.code !== route.code || ep.shift !== route.shift || ep.labels.join(',') !== savedCustomLabels.join(',')
                       return (
                         <button
                           disabled={!hasEditChanges}
@@ -1981,6 +2082,49 @@ export function RouteList() {
                       </table>
                     )}
                     </div>
+
+                    {dialogView === 'table' && (
+                      <div className="border-t border-border bg-background/95 px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 shrink-0 backdrop-blur-sm">
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                          <span className="font-medium text-foreground">{sortedDeliveryPoints.length} point{sortedDeliveryPoints.length !== 1 ? 's' : ''}</span>
+                          <span>{effectiveColumns.filter(c => c.visible && c.key !== 'action' && !((c.key === 'lat' || c.key === 'lng') && !isEditMode)).length}{effectiveColumns.find(c => c.key === 'action' && c.visible) ? ' + action' : ''} column{effectiveColumns.filter(c => c.visible && c.key !== 'action' && !((c.key === 'lat' || c.key === 'lng') && !isEditMode)).length !== 1 ? 's' : ''}</span>
+                          {pendingCellEdits.size > 0 && (
+                            <span className="font-medium text-amber-600 dark:text-amber-400">
+                              {pendingCellEdits.size} pending edit{pendingCellEdits.size !== 1 ? 's' : ''}
+                            </span>
+                          )}
+                          {selectedRows.length > 0 && isEditMode && (
+                            <span className="font-medium text-primary">
+                              {selectedRows.length} selected
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-2">
+                          {selectedRows.length > 0 && isEditMode && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 text-xs"
+                              onClick={() => setSelectedRows([])}
+                            >
+                              Clear selection
+                            </Button>
+                          )}
+                          {isEditMode && hasUnsavedChanges && (
+                            <Button
+                              size="sm"
+                              className="h-7 gap-1.5 text-xs"
+                              onClick={saveChanges}
+                              disabled={isSaving}
+                            >
+                              {isSaving ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />}
+                              {isSaving ? 'Saving...' : 'Save changes'}
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    )}
                     
                     {/* Action Buttons - Show when rows are selected in Edit Mode */}
                     {selectedRows.length > 0 && isEditMode && (
@@ -2159,7 +2303,7 @@ export function RouteList() {
                             value={newPoint.delivery}
                             onChange={(e) => setNewPoint({ ...newPoint, delivery: e.target.value })}
                           >
-                            {(currentRoute?.labels ?? ['Daily', 'Weekday', 'Alt 1', 'Alt 2']).map(lbl => (
+                            {getAvailableDeliveryLabels(currentRoute).map(lbl => (
                               <option key={lbl} value={lbl}>{lbl}</option>
                             ))}
                           </select>
