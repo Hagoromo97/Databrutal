@@ -11,7 +11,7 @@ const Rooster = lazy(() => import("@/components/Rooster").then(m => ({ default: 
 import { EditModeProvider } from "@/contexts/EditModeContext"
 import { DeviceProvider } from "@/contexts/DeviceContext"
 import { Toaster } from "sonner"
-import { Home, Package, Settings2, Images, ChevronDown, Truck, List, Layers, MapPin, ClipboardList, Users, ChevronRight, Globe, Wrench, ExternalLink, Pin } from "lucide-react"
+import { Home, Package, Settings2, Images, ChevronDown, Truck, List, Layers, MapPin, ClipboardList, Users, Globe, Wrench, ExternalLink, Pin, X } from "lucide-react"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -300,134 +300,177 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
 
       {/* ── Tool & Equipment ──────────────────────────────────── */}
       <div>
-        <p className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2.5 px-0.5">Tool &amp; Equipment</p>
+        <div className="flex items-center gap-1.5 mb-3 px-0.5">
+          <Wrench className="size-3 text-muted-foreground/60" />
+          <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Tool &amp; Equipment</p>
+        </div>
         <div className="rounded-2xl overflow-hidden border border-border/60 shadow-sm bg-card divide-y divide-border/40">
           {[
             {
               label: "Checklist Lorry",
+              description: "Daily lorry inspection form",
               href: "https://forms.office.com/pages/responsepage.aspx?id=WpvaAItOlUG0kNCIr1ybGYfFldfcInxMv9330lw425VUN1hGWVhOVFY0SlkwSk1PRENWVzJQNkREUy4u&origin=QRCode&route=shorturl",
               icon: Truck,
               bootstrapIconClass: "bi bi-check2-all",
-              plainIconContainer: true,
-              hideCaret: true,
-              accentClass: "bg-orange-500/10 ring-orange-500/20",
+              accentClass: "bg-orange-500/15 ring-1 ring-orange-500/25",
               iconClass: "text-orange-500",
             },
             {
               label: "Checklist Driver",
+              description: "Driver daily check form",
               href: "https://form.jotform.com/213008086383453",
               icon: ClipboardList,
               imageSrc: "/jotform1.png",
               imageClass: "w-9 h-9 object-contain scale-[2.25]",
-              hideCaret: true,
-              accentClass: "bg-blue-500/10 ring-blue-500/20",
+              accentClass: "bg-blue-500/15 ring-1 ring-blue-500/25",
               iconClass: "text-blue-500",
             },
             {
               label: "Web Portal",
+              description: "FamilyMart vending portal",
               href: "https://fmvending.web.app/",
               icon: Globe,
               imageSrc: "/FamilyMart.png",
               imageClass: "w-9 h-9 rounded-xl object-cover",
-              hideCaret: true,
-              accentClass: "bg-violet-500/10 ring-violet-500/20",
+              accentClass: "bg-violet-500/15 ring-1 ring-violet-500/25",
               iconClass: "text-violet-500",
             },
-          ].map(({ label, href, icon: Icon, imageSrc, imageClass, accentClass, iconClass, bootstrapIconClass, plainIconContainer, hideCaret }) => {
-            const content = (
+          ].map(({ label, description, href, icon: Icon, imageSrc, imageClass, iconClass, bootstrapIconClass }) => {
+            const iconEl = (
+              <div className="shrink-0 w-10 h-10 flex items-center justify-center overflow-hidden transition-transform duration-200 group-hover:scale-[1.07]">
+                {imageSrc ? (
+                  <img src={imageSrc} alt={`${label} icon`} className={imageClass ?? "w-9 h-9 object-contain"} />
+                ) : bootstrapIconClass ? (
+                  <i className={`${bootstrapIconClass} text-lg leading-none ${iconClass}`} aria-hidden="true" />
+                ) : (
+                  <Icon className={`size-5 ${iconClass}`} />
+                )}
+              </div>
+            )
+
+            const rowContent = (
               <>
-                <div className={imageSrc || plainIconContainer ? "shrink-0 w-9 h-9 flex items-center justify-center" : `shrink-0 w-9 h-9 rounded-lg ring-1 ${accentClass} flex items-center justify-center`}>
-                  {imageSrc ? (
-                    <img src={imageSrc} alt={`${label} icon`} className={imageClass ?? "w-9 h-9 object-contain"} />
-                  ) : bootstrapIconClass ? (
-                    <i className={`${bootstrapIconClass} text-lg leading-none ${iconClass}`} aria-hidden="true" />
-                  ) : (
-                    <Icon className={`size-5 ${iconClass}`} />
-                  )}
+                {iconEl}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-foreground leading-tight">{label}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{description}</p>
                 </div>
-                <span className="flex-1 text-sm font-semibold text-foreground">{label}</span>
-                <div className="flex items-center gap-1.5 shrink-0 text-muted-foreground/60 group-hover:text-muted-foreground transition-colors">
-                  {href ? <ExternalLink className="size-3.5" /> : <Wrench className="size-3.5" />}
-                  {!hideCaret && <ChevronRight className="size-4" />}
+                <div className="shrink-0 flex items-center text-muted-foreground/50 group-hover:text-muted-foreground transition-all duration-200 group-hover:translate-x-0.5">
+                  <ExternalLink className="size-3.5" />
                 </div>
               </>
             )
 
-            if (href) {
-              return (
-                <Popover open={confirmingLink === label} onOpenChange={(open) => !open && setConfirmingLink(null)}>
-                  <PopoverTrigger asChild>
-                    <button
-                      key={label}
-                      onClick={() => setConfirmingLink(label)}
-                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/30 active:scale-[0.98] transition-all group text-left"
-                    >
-                      {content}
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-48" side="top" align="start">
-                    <div className="space-y-3">
-                      <p className="text-sm font-medium">Open {label}?</p>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => {
-                            setConfirmingLink(null)
-                            window.open(href, '_blank', 'noopener,noreferrer')
-                          }}
-                          className="flex-1 px-3 py-1.5 text-xs font-semibold bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-                        >
-                          Open
-                        </button>
-                        <button
-                          onClick={() => setConfirmingLink(null)}
-                          className="flex-1 px-3 py-1.5 text-xs font-semibold border border-border rounded-md hover:bg-muted/50 transition-colors"
-                        >
-                          Cancel
-                        </button>
-                      </div>
+            return (
+              <Popover key={label} open={confirmingLink === label} onOpenChange={(open) => !open && setConfirmingLink(null)}>
+                <PopoverTrigger asChild>
+                  <button
+                    onClick={() => setConfirmingLink(label)}
+                    className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-muted/40 active:scale-[0.99] transition-all duration-150 group text-left"
+                  >
+                    {rowContent}
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-60 p-0 overflow-hidden" side="top" align="start">
+                  {/* Header */}
+                  <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border bg-muted/30">
+                    <div className="shrink-0 w-8 h-8 flex items-center justify-center overflow-hidden">
+                      {imageSrc ? (
+                        <img src={imageSrc} alt="" className={imageClass ?? "w-7 h-7 object-contain"} />
+                      ) : bootstrapIconClass ? (
+                        <i className={`${bootstrapIconClass} text-sm leading-none ${iconClass}`} aria-hidden="true" />
+                      ) : (
+                        <Icon className={`size-4 ${iconClass}`} />
+                      )}
                     </div>
-                  </PopoverContent>
-                </Popover>
-              )
-            }
-
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold text-foreground leading-tight truncate">{label}</p>
+                      <p className="text-[10px] text-muted-foreground leading-tight">Opens in browser</p>
+                    </div>
+                  </div>
+                  {/* Actions */}
+                  <div className="flex divide-x divide-border">
+                    <button
+                      onClick={() => setConfirmingLink(null)}
+                      className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-semibold text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors"
+                    >
+                      <X className="size-3" />Cancel
+                    </button>
+                    <button
+                      onClick={() => {
+                        setConfirmingLink(null)
+                        window.open(href, '_blank', 'noopener,noreferrer')
+                      }}
+                      className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-semibold text-primary hover:bg-primary/10 transition-colors"
+                    >
+                      <ExternalLink className="size-3" />Open
+                    </button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            )
           })}
 
           <Popover>
             <PopoverTrigger asChild>
-              <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/30 active:scale-[0.98] transition-all group text-left">
-                <div className="shrink-0 w-9 h-9 flex items-center justify-center">
+              <button className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-muted/40 active:scale-[0.99] transition-all duration-150 group text-left">
+                <div className="shrink-0 w-10 h-10 flex items-center justify-center overflow-hidden transition-transform duration-200 group-hover:scale-[1.07]">
                   <img src="/rymnet1.png" alt="Rymnet Apps icon" className="w-9 h-9 object-contain scale-[2.5]" />
                 </div>
-                <span className="flex-1 text-sm font-semibold text-foreground">Rymnet Apps</span>
-                <div className="flex items-center gap-1.5 shrink-0 text-muted-foreground/60 group-hover:text-muted-foreground transition-colors">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-foreground leading-tight">Rymnet Apps</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 leading-snug">HRMS mobile app download</p>
+                </div>
+                <div className="shrink-0 flex items-center text-muted-foreground/50 group-hover:text-muted-foreground transition-colors">
                   <ChevronDown className="size-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </div>
               </button>
             </PopoverTrigger>
 
-            <PopoverContent side="top" align="end" sideOffset={8} className="w-64 p-2">
-              <a
-                href="https://apps.apple.com/us/app/rymnet-hrms/id6475796139"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full flex items-center gap-3 rounded-md px-3 py-2.5 hover:bg-muted/40 transition-colors"
-              >
-                <i className="bi bi-apple text-lg leading-none" aria-hidden="true" />
-                <span className="flex-1 text-sm font-medium">App Store</span>
-                <ExternalLink className="size-3.5 text-muted-foreground" />
-              </a>
-
-              <a
-                href="https://play.google.com/store/apps/details?id=com.rnrymnet.prod"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full flex items-center gap-3 rounded-md px-3 py-2.5 hover:bg-muted/40 transition-colors"
-              >
-                <i className="bi bi-android2 text-lg leading-none text-green-500" aria-hidden="true" />
-                <span className="flex-1 text-sm font-medium">Play Store</span>
-                <ExternalLink className="size-3.5 text-muted-foreground" />
-              </a>
+            <PopoverContent side="top" align="end" sideOffset={8} className="w-64 p-0 overflow-hidden">
+              {/* Mini header */}
+              <div className="flex items-center gap-2.5 px-3.5 py-2.5 border-b border-border bg-muted/30">
+                <div className="w-7 h-7 flex items-center justify-center overflow-hidden shrink-0">
+                  <img src="/rymnet1.png" alt="" className="w-7 h-7 object-contain scale-[2.5]" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-foreground leading-tight">Rymnet HRMS</p>
+                  <p className="text-[10px] text-muted-foreground leading-tight">Download for your device</p>
+                </div>
+              </div>
+              {/* Store links */}
+              <div className="p-1.5 flex flex-col gap-0.5">
+                <a
+                  href="https://apps.apple.com/us/app/rymnet-hrms/id6475796139"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-muted/50 transition-colors group"
+                >
+                  <div className="w-8 h-8 flex items-center justify-center shrink-0">
+                    <i className="bi bi-apple text-base leading-none" aria-hidden="true" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-foreground leading-tight">App Store</p>
+                    <p className="text-[10px] text-muted-foreground leading-tight">iOS &amp; macOS</p>
+                  </div>
+                  <ExternalLink className="size-3 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors shrink-0" />
+                </a>
+                <a
+                  href="https://play.google.com/store/apps/details?id=com.rnrymnet.prod"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-muted/50 transition-colors group"
+                >
+                  <div className="w-8 h-8 flex items-center justify-center shrink-0">
+                    <i className="bi bi-android2 text-base leading-none text-green-500" aria-hidden="true" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-foreground leading-tight">Play Store</p>
+                    <p className="text-[10px] text-muted-foreground leading-tight">Android</p>
+                  </div>
+                  <ExternalLink className="size-3 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors shrink-0" />
+                </a>
+              </div>
             </PopoverContent>
           </Popover>
         </div>
