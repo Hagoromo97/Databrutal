@@ -250,7 +250,16 @@ async function handleRoutes(req: VercelRequest, res: VercelResponse) {
       await sql`INSERT INTO routes (id, name, code, shift, delivery_points, color, updated_at)
         VALUES (${route.id}, ${route.name}, ${route.code}, ${route.shift}, ${JSON.stringify(route.deliveryPoints)}, ${route.color ?? null}, NOW())
         ON CONFLICT (id) DO UPDATE SET name=EXCLUDED.name, code=EXCLUDED.code, shift=EXCLUDED.shift,
-          delivery_points=EXCLUDED.delivery_points, color=EXCLUDED.color, updated_at=NOW()`;
+          delivery_points=EXCLUDED.delivery_points, color=EXCLUDED.color,
+          updated_at=CASE
+            WHEN routes.name IS DISTINCT FROM EXCLUDED.name
+              OR routes.code IS DISTINCT FROM EXCLUDED.code
+              OR routes.shift IS DISTINCT FROM EXCLUDED.shift
+              OR routes.delivery_points IS DISTINCT FROM EXCLUDED.delivery_points
+              OR routes.color IS DISTINCT FROM EXCLUDED.color
+            THEN NOW()
+            ELSE routes.updated_at
+          END`;
     }
     return res.status(200).json({ success: true });
   }
