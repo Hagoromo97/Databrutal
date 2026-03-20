@@ -101,7 +101,9 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
   const [tableExpanded, setTableExpanded] = useState(false)
   const [legendOpen, setLegendOpen] = useState(false)
   const [confirmingLink, setConfirmingLink] = useState<string | null>(null)
+  const [isRymnetPopoverOpen, setIsRymnetPopoverOpen] = useState(false)
   const todayIndex = (new Date().getDay() + 6) % 7
+  const isToolPopoverOpen = confirmingLink !== null || isRymnetPopoverOpen
 
   const [pinnedRoutes, setPinnedRoutes] = useState<Array<{ id: string; name: string; code: string; shift: string }>>(() => {
     try { return JSON.parse(localStorage.getItem("fcalendar_pinned_routes") || "[]") } catch { return [] }
@@ -132,6 +134,18 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
       className="flex flex-col gap-5 p-4 md:p-6 max-w-2xl mx-auto w-full"
       style={{ paddingBottom: "calc(2.5rem + env(safe-area-inset-bottom))" }}
     >
+      {isToolPopoverOpen && (
+        <button
+          type="button"
+          aria-label="Close popover"
+          onClick={() => {
+            setConfirmingLink(null)
+            setIsRymnetPopoverOpen(false)
+          }}
+          className="fixed inset-0 z-40 bg-background/50 backdrop-blur-[2px]"
+        />
+      )}
+
       {/* ── Pinned Routes ─────────────────────────────────────── */}
       {pinnedRoutes.length > 0 && (
         <div>
@@ -301,7 +315,6 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
       {/* ── Tool & Equipment ──────────────────────────────────── */}
       <div>
         <div className="flex items-center gap-1.5 mb-3 px-0.5">
-          <Wrench className="size-3 text-muted-foreground/60" />
           <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Tool &amp; Equipment</p>
         </div>
         <div className="rounded-2xl overflow-hidden border border-border/60 shadow-sm bg-card divide-y divide-border/40">
@@ -355,9 +368,7 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
                   <p className="text-sm font-semibold text-foreground leading-tight">{label}</p>
                   <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{description}</p>
                 </div>
-                <div className="shrink-0 flex items-center text-muted-foreground/50 group-hover:text-muted-foreground transition-all duration-200 group-hover:translate-x-0.5">
-                  <ExternalLink className="size-3.5" />
-                </div>
+
               </>
             )
 
@@ -411,7 +422,7 @@ function HomePage({ onNavigate }: { onNavigate: (page: string) => void }) {
             )
           })}
 
-          <Popover>
+          <Popover open={isRymnetPopoverOpen} onOpenChange={setIsRymnetPopoverOpen}>
             <PopoverTrigger asChild>
               <button className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-muted/40 active:scale-[0.99] transition-all duration-150 group text-left">
                 <div className="shrink-0 w-10 h-10 flex items-center justify-center overflow-hidden transition-transform duration-200 group-hover:scale-[1.07]">

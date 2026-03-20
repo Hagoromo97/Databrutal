@@ -1252,8 +1252,10 @@ export function RouteList() {
     <div className="relative font-light flex-1 overflow-y-auto">
       {/* Backdrop overlay when badge popover is open */}
       {badgePopover && (
-        <div
-          className="fixed inset-0 z-40 backdrop-blur-[6px] bg-black/25 dark:bg-black/40 transition-all duration-200 animate-in fade-in"
+        <button
+          type="button"
+          aria-label="Close popover"
+          className="fixed inset-0 z-40 bg-background/50 backdrop-blur-[2px]"
           onClick={() => setBadgePopover(null)}
         />
       )}
