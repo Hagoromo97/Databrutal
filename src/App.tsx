@@ -11,7 +11,7 @@ const Rooster = lazy(() => import("@/components/Rooster").then(m => ({ default: 
 import { EditModeProvider } from "@/contexts/EditModeContext"
 import { DeviceProvider } from "@/contexts/DeviceContext"
 import { Toaster } from "sonner"
-import { Home, Package, Settings2, Images, ChevronDown, Truck, List, Layers, MapPin, ClipboardList, Users, Globe, Wrench, ExternalLink, Pin, X } from "lucide-react"
+import { Home, Package, Settings2, Images, ChevronDown, Truck, List, Layers, MapPin, ClipboardList, Users, Globe, ExternalLink, Pin, X } from "lucide-react"
 import {
   Breadcrumb,
   BreadcrumbItem,
